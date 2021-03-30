@@ -37,5 +37,10 @@ open class Layer : Serializable {
         return "Layer(input=${input.contentToString()}, output=${output.contentToString()})"
     }
 
+    fun randomize() {
+        for(neuron in output)
+            neuron.randomizeWeights()
+    }
+
 
 }

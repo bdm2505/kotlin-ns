@@ -5,8 +5,10 @@ import org.jfree.chart.ChartPanel
 import org.jfree.data.xy.XYSeries
 import org.jfree.data.xy.XYSeriesCollection
 import ru.bdm.neurons.NeuronSystem
+import ru.bdm.neurons.NeuronSystemLoader
 import ru.bdm.neurons.Rand
 import ru.bdm.neurons.functions.*
+import ru.bdm.neurons.genetic.GeneticAlgorithmForNS
 import ru.bdm.neurons.learn.*
 import javax.swing.JFrame
 import javax.swing.SwingUtilities
@@ -15,7 +17,7 @@ import kotlin.math.abs
 import kotlin.math.sin
 
 
-class GraphicTestNS(
+open class GraphicTestNS(
     val alg: LearnAlgorithm,
     val generator: TestGenerator,
     val inputGenerator: TestGenerator = generator
@@ -74,27 +76,35 @@ class GraphicTestNS(
     fun printData(ns: NeuronSystem) {
         val error = getAbsError(ns, inputGenerator)
         seriesError.add(index, error)
+        println("${alg.iterations} : $error")
         val (inputTest, answerTest) = inputGenerator.nextOneLearn()
         seriesRight.add(index, answerTest[0])
         seriesAnswer.add(index, ns.work(inputTest)[0])
     }
 
-    fun oneLearn() {
+    open fun oneLearn() {
         val (input, answer) = generator.nextOneLearn()
 
         alg.learnOne(input, answer)
     }
 }
 
-fun main(arg: Array<String>) {
+fun main( arg: Array<String>) {
     //runXorLearning()
-runSinLearning()
-
+    //runSinLearning()
+    //runSinLearningOnGenetic()
+    //runDrawResultNS("genitic.obj")
 }
+class TestDraw(
+     alg: LearnAlgorithm,
+     generator: TestGenerator,
+     inputGenerator: TestGenerator = generator
+) : GraphicTestNS(alg, generator, inputGenerator){
+    override fun oneLearn() {
 
-fun runSinLearning(){
-    fun nextRandInput() = arrayListOf(Rand.rand.nextDouble() * PI * 2)
-    fun right(x: Double) = abs(sin(sin(x) - 2.0))
+    }
+}
+fun runDrawResultNS(fileName: String){
 
     val generator = FromFunctionsGenerator({
         nextRandInput()
@@ -109,7 +119,57 @@ fun runSinLearning(){
         arrayListOf(right(array[0]))
     }, (1..1000).map { nextRandInput() })
 
-    val ns = NeuronSystem(ReLu(), 1, 40, 20, 10, 1)
+    val ns = NeuronSystemLoader.load(fileName)
+    val alg = BackPropagation(ns).apply {
+        speedLearn = 0.001
+        addListener(PrinterCounterListener(10000))
+    }
+    TestDraw(alg, generator, drawingGenerator).run()
+}
+
+fun runSinLearningOnGenetic(){
+    val nsBased = NeuronSystem(ReLu(), 1, 20, 10, 1)
+
+    var list = List(100){ nextRandInput() }
+
+    val getScore = { ns: NeuronSystem ->
+        list.map { input -> abs(ns.work(input)[0] - right(input[0])) }.sum()
+    }
+
+    val genetic = GeneticAlgorithmForNS(nsBased, getScore)
+    var sum = .0
+    var count = 0
+    while (count < 20000) {
+        list = List(10){ nextRandInput() }
+        genetic.learOne()
+        sum += genetic.bestResult
+        count++
+        if (count % 300 == 0) {
+            println("$count : ${sum / count}")
+        }
+    }
+    (genetic.chromosomes as List<NeuronSystem>)[0].save("genitic.obj")
+}
+fun nextRandInput() = arrayListOf(Rand.rand.nextDouble() * PI * 2)
+fun right(x: Double) = abs(sin(sin(x) - 2.0))
+
+fun runSinLearning(){
+
+
+    val generator = FromFunctionsGenerator({
+        nextRandInput()
+    }, { array ->
+        arrayListOf(right(array[0]))
+    }, (1..1000).map { nextRandInput() })
+    var currentDelta = 0.0
+    val drawingGenerator = FromFunctionsGenerator({
+        currentDelta += 0.2
+        arrayListOf(currentDelta % (PI * 2))
+    }, { array ->
+        arrayListOf(right(array[0]))
+    }, (1..1000).map { nextRandInput() })
+
+    val ns = NeuronSystem(ReLu(), 1, 20, 10, 1)
     val alg = BackPropagation(ns).apply {
         speedLearn = 0.001
         addListener(PrinterCounterListener(10000))

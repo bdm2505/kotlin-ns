@@ -87,5 +87,11 @@ class NeuronSystem : Serializable {
         out.close()
     }
 
+    fun randomize(): NeuronSystem {
+        for(layer in layers)
+            layer.randomize()
+        return this
+    }
+
 
 }

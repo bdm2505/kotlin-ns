@@ -12,7 +12,7 @@ class Neuron(
 ) : INeuron, Serializable {
 
     constructor(input: Array<INeuron>, activation: FunctionActivation) :
-            this(input, Array(input.size + 1) { Rand.nextDouble() }, activation)
+            this(input, Array(input.size + 1) { Rand.generateDouble() }, activation)
 
     private var result = .0
 
@@ -58,6 +58,12 @@ class Neuron(
 
     fun copy(input: Array<INeuron>): Neuron {
         return Neuron(input, weights.clone(), activation)
+    }
+
+    fun randomizeWeights() {
+        for(i in weights.indices){
+            weights[i] = Rand.generateDouble()
+        }
     }
 
 }
