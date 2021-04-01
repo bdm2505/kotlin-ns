@@ -1,10 +1,9 @@
 plugins {
-    id 'java'
-    id 'org.jetbrains.kotlin.jvm' version '1.4.10'
+    id 'org.jetbrains.kotlin.jvm' version '1.4.32'
 }
 
-group 'ru.bdm.neurons'
-version '0.1.0'
+group 'ru.bdm.magic'
+version '1.0'
 
 repositories {
     mavenCentral()
@@ -12,10 +11,7 @@ repositories {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
-    //implementation group: 'com.github.neuroph', name: 'neuroph-core', version: '2.98'
-
     implementation group: 'org.jfree', name: 'jfreechart', version: '1.5.3'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2'
 
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
