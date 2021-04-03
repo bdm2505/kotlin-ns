@@ -18,8 +18,14 @@ fun <T> ArrayDeque<T>.copy(): ArrayDeque<T> where T : Copied {
     return ArrayDeque(this.map { it.copy() as T })
 }
 
+fun String.toCost(): Kit<Mana> {
+    val kit = emptyKit<Mana>()
+    this.map{ getMana(it) }.forEach(kit::add)
+    return kit
+}
 
-fun <T> Kit<T>.put(element: T){
+
+fun <T> Kit<T>.add(element: T){
     get(element)?.let{
         put(element, get(element)!! + 1)
     } ?: run { this[element] = 1 }

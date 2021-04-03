@@ -1,24 +1,29 @@
 package ru.bdm.mtg
+import ru.bdm.mtg.copy
 
 
-
-typealias Actions = MutableList<Pair<() -> Boolean, () -> Unit>>
 open class Card : Copied, Cloneable {
-
-    var cost: MutableMap<Char, Int> = mutableMapOf()
 
     lateinit var me: StatePlayer
     lateinit var enemy: StatePlayer
 
-    var actions: Actions = mutableListOf()
-
-    fun act(condition: () -> Boolean, reaction: () -> Unit){
-        actions.add(Pair(condition, reaction))
-    }
+    var cost: Kit<Mana> = emptyKit()
+    var tags: MutableList<Tag> = mutableListOf()
+    var status: MutableList<Status> = mutableListOf()
 
     fun setStates(me:StatePlayer, enemy: StatePlayer){
         this.me = me
         this.enemy = enemy
+    }
+
+    fun tag(vararg tag: Tag){
+        tags.addAll(tag)
+    }
+    fun status(vararg st: Status){
+        status.addAll(st)
+    }
+    fun cost(s: String){
+        cost = s.toCost()
     }
 
     override fun toString(): String {
@@ -36,7 +41,16 @@ open class Card : Copied, Cloneable {
     }
 
     override fun copy(): Card {
-        return clone() as Card
+        return (clone() as Card).apply {
+            cost = HashMap(cost)
+            tags = ArrayList(tags)
+            status = ArrayList(status)
+        }
+    }
+
+    fun setState(state: State) {
+        me = state.first
+        enemy = state.second
     }
 
 }

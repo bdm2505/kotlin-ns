@@ -1,9 +1,5 @@
 import org.junit.jupiter.api.Test
-import ru.bdm.mtg.dequeOf
-import ru.bdm.mtg.kitOf
-import ru.bdm.mtg.Card
-import ru.bdm.mtg.Land
-import ru.bdm.mtg.StatePlayer
+import ru.bdm.mtg.*
 
 class MtgTests {
 
@@ -35,6 +31,25 @@ class MtgTests {
         assert(b.aa === cb.aa)
         assert(b.a == cb.a)
 
+    }
+
+    @Test
+    fun testExecuteCard(){
+        val state = StatePlayer()
+        val card = Land()
+        card.setStates(state, state)
+        state.hand.add(card)
+        val results = mutableListOf<State>()
+        executeCard(card, Pair(state, state), results::add)
+        results[0].first.apply {
+            assert(hand.isEmpty())
+            assert(lands.containsKey(card))
+        }
+    }
+
+    @Test
+    fun testManaEquals(){
+        assert(Mana.NEUTRAL == Mana.C)
     }
 
 }

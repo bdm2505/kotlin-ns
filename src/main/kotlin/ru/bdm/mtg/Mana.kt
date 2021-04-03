@@ -1,16 +1,33 @@
 package ru.bdm.mtg
 
-object Mana {
-    val neutral = 'C'
-    val red = 'R'
-    val blue = 'U'
-    val black = 'B'
-    val white = 'W'
-    val green = 'G'
-    val C = 'C'
-    val R = 'R'
-    val U = 'U'
-    val B = 'B'
-    val W = 'W'
-    val G = 'G'
+enum class Mana(char: Char) : Copied {
+    NEUTRAL('C'),
+    RED('R'),
+    BLUE('U'),
+    BLACK('B'),
+    WHITE('W'),
+    GREEN('G'),
+    C('C'),
+    R('R'),
+    U('U'),
+    B('B'),
+    W('W'),
+    G('G');
+
+    override fun copy(): Mana {
+        return this
+    }
+}
+
+fun getMana(char: Char): Mana{
+    return when(char){
+        'C' -> Mana.NEUTRAL
+        'R' -> Mana.RED
+        'U' -> Mana.BLUE
+        'B' -> Mana.BLACK
+        'W' -> Mana.WHITE
+        'G' -> Mana.GREEN
+
+        else -> throw Exception("not color [$char]")
+    }
 }

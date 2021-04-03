@@ -1,7 +1,12 @@
 package ru.bdm.mtg
 
-fun Card.addMana(color: Char){
-    me.mana.put(color)
+fun Card.addMana(color: Mana){
+    me.mana.add(color)
+}
+fun RotateCard.play() {
+    rotate()
+    spendMana()
+    move()
 }
 
 fun RotateCard.rotate(newRotate:Boolean = true){
@@ -10,7 +15,7 @@ fun RotateCard.rotate(newRotate:Boolean = true){
 
 fun Card.move(start: Kit<Card> = me.hand, end : Kit<Card> = me.battlefield)  {
     start.take(this)
-    end.put(this)
+    end.add(this)
 }
 
 fun Card.spendMana(player: StatePlayer = me){
@@ -23,7 +28,7 @@ fun Card.spendMana(player: StatePlayer = me){
                 player.mana.remove(m.key)
         }
     }
-    cost[Mana.neutral]?.let {
+    cost[Mana.NEUTRAL]?.let {
         var count = it
         for (m in player.mana){
             if(m.value > count){

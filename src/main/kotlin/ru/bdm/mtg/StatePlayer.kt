@@ -3,7 +3,7 @@ package ru.bdm.mtg
 import ru.bdm.*
 
 class StatePlayer(
-    val mana: Kit<Char> = emptyKit(),
+    val mana: Kit<Mana> = emptyKit(),
     val hand: Kit<Card> = emptyKit(),
     val lands: Kit<Card> = emptyKit(),
     val battlefield: Kit<Card> = emptyKit(),

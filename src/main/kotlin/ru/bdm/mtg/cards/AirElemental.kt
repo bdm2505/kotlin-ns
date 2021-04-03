@@ -1,20 +1,16 @@
 package ru.bdm.mtg.cards
 
-import ru.bdm.mtg.Actions
-import ru.bdm.mtg.RotateCard
-import ru.bdm.mtg.conditions.enoughMana
-import ru.bdm.mtg.conditions.inHand
-import ru.bdm.mtg.move
-import ru.bdm.mtg.spendMana
 
-class AirElemental : RotateCard(true) {
+import ru.bdm.mtg.*
+import ru.bdm.mtg.conditions.canPlay
+
+class AirElemental : Creature(4, 4) {
 
     init {
-        act({
-            inHand() && enoughMana()
-        },{
-            spendMana()
-            move(me.hand, me.battlefield)
-        })
+        cost("CCCUU")
+        tag(Tag.CREATURE, Tag.ELEMENTAL)
+        status(Status.FLYING)
     }
+
+
 }
