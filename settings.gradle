@@ -1,2 +1,3 @@
 rootProject.name = 'kotlin-ns-2'
+include 'desktop', 'core', 'mtg'
 
