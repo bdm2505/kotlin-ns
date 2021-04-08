@@ -1,6 +1,6 @@
 package ru.bdm.mtg
 
-class ConsolePlayer(val name: String) : Player(){
+class ConsolePlayer(name: String) : Player(name){
 
     override fun chooseAction(current: State, states: List<State>): State {
         val set = HashSet(states).toList()
@@ -10,6 +10,8 @@ class ConsolePlayer(val name: String) : Player(){
         for(i in set.indices){
             println("[$i] : ${current.getDifference(set[i])}")
         }
+//        if (states.size == 1)
+//            return set[0]
         print("choose number:")
         val res = readLine()!!.toInt()
         return set[res]

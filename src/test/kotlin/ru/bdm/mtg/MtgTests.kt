@@ -4,21 +4,34 @@ import ru.bdm.mtg.*
 class MtgTests {
 
     @Test
-    fun stateCopy(){
-        val state = StatePlayer(mana = kitOf(Pair('R', 3)), lands = kitOf(Pair(Land(), 2)), deck = dequeOf(Land()))
+    fun stateCopy() {
+        val state = StatePlayer(
+            mana = emptyKit<Mana>() + Mana.RED,
+            lands = mutableSetOf(Land(), Land()),
+            deck = mutableSetOf(Land()),
+            hand = mutableSetOf(Land())
+        )
+
         val stateCopy = state.copy()
         assert(state !== stateCopy)
         assert(state.mana !== stateCopy.mana)
+        assert(state.hand !== stateCopy.hand)
+        assert(state.hand.iterator().next() == stateCopy.hand.iterator().next())
+        assert(state.hand.iterator().next() !== stateCopy.hand.iterator().next())
+        (state.hand.iterator().next() as Land).color = Mana.BLACK
+        assert(state.hand.iterator().next() != stateCopy.hand.iterator().next())
+
         assert(state.battlefield !== stateCopy.battlefield)
         assert(state.deck !== stateCopy.deck)
         assert(state.lands !== stateCopy.lands)
         assert(state.mana['R'] == stateCopy.mana['R'])
         assert(state.deck.first() !== stateCopy.deck.first())
-        assert(state.lands.map { it.key }.first() !== stateCopy.lands.map { it.key }.first())
+        assert(state.lands.first() !== stateCopy.lands.first())
+        assert(state.lands.first() == stateCopy.lands.first())
     }
 
     @Test
-    fun testClone(){
+    fun testClone() {
         val a = A()
         val ca = a.clone()
         assert(a !== ca)
@@ -34,23 +47,16 @@ class MtgTests {
     }
 
     @Test
-    fun testExecuteCard(){
-        val state = StatePlayer()
-        val card = Land()
-        card.setStates(state, state)
-        state.hand.add(card)
-        val results = mutableListOf<State>()
-        executeCard(card, Pair(state, state), results::add)
-        results[0].first.apply {
-            assert(hand.isEmpty())
-            assert(lands.containsKey(card))
+    fun whenExtends(){
+        val a: A = C()
+        when(a){
+            is B ->
+                println("B")
+            is A ->
+                println("A")
         }
     }
 
-    @Test
-    fun testManaEquals(){
-        assert(Mana.NEUTRAL == Mana.C)
-    }
 
 }
 
@@ -66,3 +72,4 @@ class B(var aa: A = A()) : A() {
         return super.clone() as B
     }
 }
+class C : A()

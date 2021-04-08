@@ -1,6 +1,8 @@
 package ru.bdm.mtg
 
 enum class Status {
-    empty,
-    FLYING,
+    EMPTY,
+    FLYING;
+
+    fun canBlock(enemy: Set<Status>): Boolean = !enemy.contains(FLYING) || this == FLYING
 }

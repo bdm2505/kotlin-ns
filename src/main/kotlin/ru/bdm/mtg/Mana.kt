@@ -1,19 +1,12 @@
 package ru.bdm.mtg
 
-enum class Mana(char: Char) : Copied {
+enum class Mana(val char: Char) : Copied {
     NEUTRAL('C'),
     RED('R'),
     BLUE('U'),
     BLACK('B'),
     WHITE('W'),
-    GREEN('G'),
-    C('C'),
-    R('R'),
-    U('U'),
-    B('B'),
-    W('W'),
-    G('G');
-
+    GREEN('G');
     override fun copy(): Mana {
         return this
     }
