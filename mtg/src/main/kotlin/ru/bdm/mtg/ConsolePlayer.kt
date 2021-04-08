@@ -13,6 +13,7 @@ class ConsolePlayer(name: String) : Player(name){
 //        if (states.size == 1)
 //            return set[0]
         print("choose number:")
+        return set[0]
         val res = readLine()!!.toInt()
         return set[res]
     }
@@ -21,7 +22,9 @@ class ConsolePlayer(name: String) : Player(name){
 
 fun main(){
     val battle = Battle(ConsolePlayer("me"), ConsolePlayer("enemy"))
-    while (true){
+    while (!battle.isEnd()){
         battle.nextTurn()
     }
+    println()
+    println(battle.state)
 }

@@ -37,13 +37,19 @@ class Battle(val player: Player, val enemyPlayer: Player) {
     }
 
 
-
+    fun isEnd():Boolean = me.hp <= 0 || enemy.hp <= 0
 
     private fun nextStates(cards: Set<AbstractCard>): List<State> {
         return CardExecutor.resultStates(state, cards.toList())
     }
 }
 
-
+fun main(){
+    val battle = Battle(SocketPlayer("first", 24009), SocketPlayer("second", 25009))
+    println("started..")
+    while (true){
+        battle.nextTurn()
+    }
+}
 
 

@@ -44,8 +44,12 @@ interface CardInterface {
     }
 
     fun move(start: MutableSet<AbstractCard>, end: MutableList<AbstractCard>, movedCard: Card = card) {
-        start -= movedCard
-        end.add(movedCard)
+        if (start.contains(movedCard)) {
+            start.remove(movedCard)
+            end.add(movedCard)
+        } else {
+            System.err.println("error move $movedCard from $start to $end   $state")
+        }
     }
 
     fun spendMana(player: StatePlayer = me) {

@@ -42,10 +42,12 @@ interface CreatureInterface : RotateCardInterface{
         creature.hp -= enemy.force
         if (creature.hp < 0) {
             move(me.battlefield, me.graveyard)
+            println("moved me $enemy $state")
             creature.reset()
         }
         if(enemy.hp < 0){
             move(this.enemy.battlefield, this.enemy.graveyard, enemy)
+            println("moved enemy $enemy $state")
             enemy.reset()
         }
     }
@@ -107,27 +109,6 @@ open class Creature() : RotateCard() {
         return super.toString() + (if(attack) "A" else "") + "(${force}_$hp/$maxHp)"
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is Creature) return false
-        if (!super.equals(other)) return false
-
-        if (force != other.force) return false
-        if (hp != other.hp) return false
-        if (maxHp != other.maxHp) return false
-        if (attack != other.attack) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = super.hashCode()
-        result = 31 * result + force
-        result = 31 * result + hp
-        result = 31 * result + maxHp
-        result = 31 * result + attack.hashCode()
-        return result
-    }
 
 
 }

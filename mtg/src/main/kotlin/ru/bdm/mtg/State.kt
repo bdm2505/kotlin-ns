@@ -25,7 +25,7 @@ data class State(val me:StatePlayer = StatePlayer(), val enemy: StatePlayer = St
                 res.me.isLandPlayable = false
                 for(card in res.me.activeCards())
                     card.reset()
-                res
+                res.swap()
             }
         }
     }

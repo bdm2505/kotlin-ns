@@ -46,20 +46,5 @@ open class Land() : RotateCard() {
         return super.toString() + "-$color"
     }
 
-    override fun hashCode(): Int {
-        var result = super.hashCode()
-        result = 31 * result + color.hashCode()
-        return result
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is Land) return false
-        if (!super.equals(other)) return false
-
-        if (color != other.color) return false
-
-        return true
-    }
 
 }
