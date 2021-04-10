@@ -2,15 +2,15 @@ package ru.bdm.mtg
 
 
 interface CardInterface {
-    val state: State
+    val battleState: BattleState
     val abstractCard: AbstractCard
     val card: Card
         get() = abstractCard as Card
 
     val me: StatePlayer
-        get() = state.me
+        get() = battleState.me
     val enemy: StatePlayer
-        get() = state.enemy
+        get() = battleState.enemy
 
     fun isStartPhase(player: StatePlayer = me): Boolean = player.phase == Phase.START
     fun isAttackPhase(player: StatePlayer = me): Boolean = player.phase == Phase.ATTACK
@@ -18,9 +18,9 @@ interface CardInterface {
     fun isEndAttackPhase(player: StatePlayer = me): Boolean = player.phase == Phase.END_ATTACK
     fun isEndPhase(player: StatePlayer = me): Boolean = player.phase == Phase.END
 
-    fun inHand(player: StatePlayer = me): Boolean = player.hand.contains(card)
-    fun inLands(player: StatePlayer = me): Boolean = player.lands.contains(card)
-    fun inBattlefield(player: StatePlayer = me): Boolean = player.battlefield.contains(card)
+    fun inHand(player: StatePlayer = me): Boolean = player.hand.contains(card.id)
+    fun inLands(player: StatePlayer = me): Boolean = player.lands.contains(card.id)
+    fun inBattlefield(player: StatePlayer = me): Boolean = player.battlefield.contains(card.id)
 
     fun canPlay() = inHand() && enoughMana() && (isStartPhase() || isEndPhase())
 
@@ -38,17 +38,17 @@ interface CardInterface {
         me.mana.plus(color)
     }
 
-    fun move(start: MutableSet<AbstractCard> = me.hand, end: MutableSet<AbstractCard> = me.battlefield, movedCard: Card = card) {
-        start -= movedCard
-        end += movedCard
+    fun move(start: MutableSet<Int> = me.hand, end: MutableSet<Int> = me.battlefield, movedCard: Card = card) {
+        start -= movedCard.id
+        end += movedCard.id
     }
 
-    fun move(start: MutableSet<AbstractCard>, end: MutableList<AbstractCard>, movedCard: Card = card) {
-        if (start.contains(movedCard)) {
-            start.remove(movedCard)
-            end.add(movedCard)
+    fun move(start: MutableSet<Int>, end: MutableList<Int>, movedCard: Card = card) {
+        if (start.contains(movedCard.id)) {
+            start.remove(movedCard.id)
+            end.add(movedCard.id)
         } else {
-            System.err.println("error move $movedCard from $start to $end   $state")
+            System.err.println("error move $movedCard from $start to $end   $battleState")
         }
     }
 

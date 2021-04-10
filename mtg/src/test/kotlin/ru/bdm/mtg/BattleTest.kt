@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Test
 internal class BattleTest{
     class EmptyPlayer(s: String) : Player(s) {
 
-        override fun chooseAction(current: State, states: List<State>): State {
-            return states.first()
+        override fun chooseAction(current: BattleState, battleStates: List<BattleState>): BattleState {
+            return battleStates.first()
         }
 
     }

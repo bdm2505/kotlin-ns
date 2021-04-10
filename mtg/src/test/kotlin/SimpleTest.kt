@@ -102,25 +102,5 @@ class SimpleTest {
     }
 
 
-    class A {
-        lateinit var s: String
-
-        val ss:String
-            get() = s
-    }
-
-    @Test
-    fun testLateInit(){
-        val c = Land()
-        val state = Pair(StatePlayer(), StatePlayer())
-        val cs = state.copy()
-        state.first.hand + c
-        Pair(1,2).copy()
-
-        println(state)
-        println(cs)
-
-    }
-
 
 }

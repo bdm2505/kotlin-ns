@@ -18,16 +18,15 @@ class SocketPlayer(name: String, port: Int) : Player(name) {
     val input = Scanner(client.getInputStream())
     val output = PrintWriter(client.getOutputStream())
 
-    override fun chooseAction(current: State, states: List<State>): State {
+    override fun chooseAction(current: BattleState, battleStates: List<BattleState>): BattleState {
 
         output.println(CardSerializer.encode(current))
-        output.println(states.size)
-        for(state in states)
+        output.println(battleStates.size)
+        for(state in battleStates)
             output.println(CardSerializer.encode(state))
         output.flush()
         val index = input.nextInt()
-        println(index)
-        return states[index]
+        return battleStates[index]
     }
 }
 

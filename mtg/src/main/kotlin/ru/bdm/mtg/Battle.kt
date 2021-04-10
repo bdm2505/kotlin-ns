@@ -5,24 +5,18 @@ import ru.bdm.mtg.cards.Creature
 
 class Battle(val player: Player, val enemyPlayer: Player) {
 
-    var state: State = State(StatePlayer(player.name), StatePlayer(enemyPlayer.name))
+    var state: BattleState = BattleState(StatePlayer(player.name), StatePlayer(enemyPlayer.name))
     val me: StatePlayer
         get() = state.me
     val enemy: StatePlayer
         get() = state.enemy
 
 
-    init {
-        me.hand.addAll(List(3) { Creature(3,4) })
-        enemy.hand.addAll(List(7) { Creature(2,1) })
-        //state.enemy.hand.addAll(List(5) { Land() })
-    }
-
     fun nextTurn() {
         state = turn(if (player.name == me.name) player else enemyPlayer)
     }
 
-    private fun turn(player: Player): State {
+    private fun turn(player: Player): BattleState {
 
         if (me.phase == Phase.END_ATTACK) {
             return executeAllCards().nextTurn()
@@ -31,23 +25,27 @@ class Battle(val player: Player, val enemyPlayer: Player) {
         return player.chooseAction(state, states)
     }
 
-    private fun executeAllCards(): State {
+    private fun executeAllCards(): BattleState {
         CardExecutor.executeAll(state, me.activeCards().toList())
         return state
     }
 
 
-    fun isEnd():Boolean = me.hp <= 0 || enemy.hp <= 0
+    fun isEnd(): Boolean = me.hp <= 0 || enemy.hp <= 0
 
-    private fun nextStates(cards: Set<AbstractCard>): List<State> {
+    private fun nextStates(cards: List<AbstractCard>): List<BattleState> {
         return CardExecutor.resultStates(state, cards.toList())
     }
 }
 
-fun main(){
-    val battle = Battle(SocketPlayer("first", 24009), SocketPlayer("second", 25009))
+fun main() {
+    val battle = Battle(SocketPlayer("first", 24009), ZeroPlayer("second")).apply {
+        me.addAll(List(3) { Creature(3, 4) })
+        enemy.addAll(List(4) { Creature(4, 2) })
+    }
+
     println("started..")
-    while (true){
+    while (!battle.isEnd()) {
         battle.nextTurn()
     }
 }

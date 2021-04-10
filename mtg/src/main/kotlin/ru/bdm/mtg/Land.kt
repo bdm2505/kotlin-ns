@@ -46,5 +46,15 @@ open class Land() : RotateCard() {
         return super.toString() + "-$color"
     }
 
+    override fun eq(card: Any?): Boolean {
+        if (this === card) return true
+        if (card !is Land) return false
+        if (!super.equals(card)) return false
+
+        if (color != card.color) return false
+
+        return true
+    }
+
 
 }

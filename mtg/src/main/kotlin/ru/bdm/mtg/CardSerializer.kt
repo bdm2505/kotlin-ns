@@ -1,10 +1,7 @@
 package ru.bdm.mtg.cards
 
-import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import ru.bdm.mtg.*
@@ -24,11 +21,11 @@ object CardSerializer {
         encodeDefaults = true
     }
 
-    fun encode(p1: State): String =
+    fun encode(p1: BattleState): String =
         format.encodeToString(p1)
 
 
-    fun decode(p1: String): State =
+    fun decode(p1: String): BattleState =
         format.decodeFromString(p1)
 
 

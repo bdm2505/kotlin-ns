@@ -9,8 +9,6 @@ public class DesktopLauncher {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		config.width = 70 * 15;
 		config.height = 70 * 9;
-		Runnable runnable = () -> new LwjglApplication(new LibGdxStarter(), config);
-		new Thread(runnable).start();
-		new Thread(runnable).start();
+		new LwjglApplication(new LibGdxStarter(), config);
 	}
 }

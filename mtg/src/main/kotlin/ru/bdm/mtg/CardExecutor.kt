@@ -9,13 +9,13 @@ object CardExecutor {
     private val landExecutor = LandExecutor()
     private val creatureExecutor = CreatureExecutor()
 
-    fun resultStates(state: State, cards: List<AbstractCard>): List<State> {
+    fun resultStates(battleState: BattleState, cards: List<AbstractCard>): List<BattleState> {
         return cards.flatMap {
-            executor(it).resultStates(state, it) }
+            executor(it).resultStates(battleState, it) }
     }
 
-    fun executeAll(state: State, cards: List<AbstractCard>) {
-        cards.forEach { executor(it).executeAll(state, it) }
+    fun executeAll(battleState: BattleState, cards: List<AbstractCard>) {
+        cards.forEach { executor(it).executeAll(battleState, it) }
     }
 
     private fun executor(card: AbstractCard) = when (card) {
@@ -28,12 +28,12 @@ object CardExecutor {
 
 open class Executor : CardInterface {
     override lateinit var abstractCard: AbstractCard
-    override lateinit var state: State
+    override lateinit var battleState: BattleState
     private val cond = "condition"
     private val reac = "reaction"
 
-    private fun activeReactions(stateNew: State, cardNew: AbstractCard): List<() -> Unit> {
-        state = stateNew
+    private fun activeReactions(battleStateNew: BattleState, cardNew: AbstractCard): List<() -> Unit> {
+        battleState = battleStateNew
         abstractCard = cardNew
         val list = mutableListOf<() -> Unit>()
         for (method in javaClass.methods)
@@ -47,21 +47,21 @@ open class Executor : CardInterface {
         return list
     }
 
-    fun resultStates(stateNew: State, cardNew: AbstractCard): List<State> {
-        val st = stateNew.clone()
+    fun resultStates(battleStateNew: BattleState, cardNew: AbstractCard): List<BattleState> {
+        val st = battleStateNew.clone()
         val card = cardNew.copy()
         st.updateCard(card)
         return activeReactions(st, card).map {
             it()
-            val res = state
-            state = stateNew.clone()
-            state.updateCard(card.copy())
+            val res = battleState
+            battleState = battleStateNew.clone()
+            battleState.updateCard(card.copy())
             res
         }
     }
 
-    fun executeAll(stateNew: State, card: AbstractCard) {
-        for (funs in activeReactions(stateNew, card))
+    fun executeAll(battleStateNew: BattleState, card: AbstractCard) {
+        for (funs in activeReactions(battleStateNew, card))
             funs()
     }
 }

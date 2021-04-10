@@ -55,6 +55,15 @@ fun<T> MutableSet<T>.copy(): MutableSet<T> where T : Copied {
     return this.map { it.copy() as T }.toMutableSet()
 }
 
+fun Kit<Mana>.string(): String {
+    val sb = StringBuilder()
+    for((ch, count) in this){
+        for(i in 1..count)
+            sb.append(ch.char)
+    }
+    return sb.toString()
+}
+
 
 interface Copied {
     fun copy(): Any

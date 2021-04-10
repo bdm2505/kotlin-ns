@@ -1,27 +1,41 @@
 package ru.bdm.mtg
 
-class ConsolePlayer(name: String) : Player(name){
+import ru.bdm.mtg.cards.Creature
 
-    override fun chooseAction(current: State, states: List<State>): State {
-        val set = HashSet(states).toList()
+open class ConsolePlayer(name: String) : Player(name){
+
+    override fun chooseAction(current: BattleState, battleStates: List<BattleState>): BattleState {
+        printLog(battleStates, current)
+        val res = readLine()!!.toInt()
+        return battleStates[res]
+    }
+    fun printLog(battleStates: List<BattleState>, current: BattleState) {
         println("course : ${current.me.numberCourse} player $name ")
         println("enemy ${current.enemy.hp}❤: ${current.enemy.battlefield}")
         println(current.me)
-        for(i in set.indices){
-            println("[$i] : ${current.getDifference(set[i])}")
+        for (i in battleStates.indices) {
+            println("[$i] : ${current.getDifference(battleStates[i])}")
         }
-//        if (states.size == 1)
-//            return set[0]
         print("choose number:")
-        return set[0]
-        val res = readLine()!!.toInt()
-        return set[res]
     }
-
 }
 
+class ZeroPlayer(name: String, val log: Boolean = false): ConsolePlayer(name){
+    override fun chooseAction(current: BattleState, battleStates: List<BattleState>): BattleState {
+        if(log) {
+            printLog(battleStates, current)
+            println(0)
+        }
+        return battleStates[0]
+    }
+}
+
+
 fun main(){
-    val battle = Battle(ConsolePlayer("me"), ConsolePlayer("enemy"))
+    val battle = Battle(ConsolePlayer("me"), ConsolePlayer("enemy")).apply {
+        me.addAll(List(3) { Creature(3, 4) })
+        enemy.addAll(List(4) { Creature(4, 2) })
+    }
     while (!battle.isEnd()){
         battle.nextTurn()
     }

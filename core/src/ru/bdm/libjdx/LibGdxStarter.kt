@@ -1,19 +1,20 @@
 package ru.bdm.libjdx
 
-import com.badlogic.gdx.ApplicationAdapter
 import com.badlogic.gdx.Game
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.GL20
-import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.g2d.SpriteBatch
 
 
 class LibGdxStarter : Game() {
 
 
     override fun create() {
-
-        setScreen(MainScreen())
+        val mainScreen = MainScreen()
+        val listener = SocketListener(mainScreen)
+        mainScreen.listener = listener
+        listener.start()
+        setScreen(mainScreen)
+//        setScreen(BaseScreen())
 
     }
 

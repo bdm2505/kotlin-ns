@@ -1,19 +1,19 @@
 package ru.bdm.mtg
 
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 
 @Serializable
 class StatePlayer(
     val name: String = "no_name",
     val mana: Kit<Mana> = emptyKit(),
-    val hand: MutableSet<AbstractCard> = mutableSetOf(),
-    val lands: MutableSet<AbstractCard> = mutableSetOf(),
-    val battlefield: MutableSet<AbstractCard> = mutableSetOf(),
+    val cards: MutableMap<Int, AbstractCard> = mutableMapOf(),
+    val hand: MutableSet<Int> = mutableSetOf(),
+    val lands: MutableSet<Int> = mutableSetOf(),
+    val battlefield: MutableSet<Int> = mutableSetOf(),
+    val graveyard: MutableList<Int> = mutableListOf(),
+    val deck: MutableList<Int> = mutableListOf(),
     var numberCourse: Int = 0,
     var isLandPlayable: Boolean = false,
-    val graveyard: MutableList<AbstractCard> = mutableListOf(),
-    val deck: MutableList<AbstractCard> = mutableListOf(),
     var phase: Phase = Phase.START,
     var hp: Int = 20,
 ) : Copied {
@@ -21,13 +21,14 @@ class StatePlayer(
         return StatePlayer(
             name,
             HashMap(mana),
-            hand.copy(),
-            lands.copy(),
-            battlefield.copy(),
+            cards.map { Pair(it.key, it.value.copy()) }.toMap().toMutableMap(),
+            hand.toMutableSet(),
+            lands.toMutableSet(),
+            battlefield.toMutableSet(),
+            graveyard.toMutableList(),
+            deck.toMutableList(),
             numberCourse,
             isLandPlayable,
-            graveyard.copy(),
-            deck.copy(),
             phase,
             hp
         )
@@ -35,81 +36,78 @@ class StatePlayer(
 
     fun getDifference(next: StatePlayer): Difference {
         if (name != next.name)
-            return Difference(listOf(), listOf(), listOf(), listOf(), listOf(), listOf(), listOf(), listOf(), listOf(), listOf(), next.numberCourse, listOf(next.phase), next.hp, next.name, next.isLandPlayable)
-        return Difference(
-            getAdd(mana, next.mana),
-            getRemoved(mana, next.mana),
-            getAdd(hand, next.hand),
-            getAdd(lands, next.lands),
-            getAdd(deck, next.deck),
-            getAdd(graveyard, next.graveyard),
-            getRemoved(hand, next.hand),
-            getRemoved(lands, next.lands),
-            getRemoved(deck, next.deck),
-            getRemoved(graveyard, next.graveyard),
-            next.numberCourse,
-            if(phase == next.phase) listOf() else listOf(next.phase),
-            next.hp,
-            next.name,
-            next.isLandPlayable
-        )
+            return Difference(
+                null,
+                listOf(),
+                null,
+                "$name->${next.name}",
+                if (numberCourse != next.numberCourse) next.numberCourse else null,
+                null,
+                if (phase == next.phase) null else next.phase
+            )
+        else {
+            val list = mutableListOf<Pair<AbstractCard, String>>()
+            for ((index, card) in next.cards) {
+                if (cards.contains(index)) when {
+                    cards[index]!! notEq card ->
+                        list.add(Pair(card, ""))
+                    next.hand.contains(index) && !hand.contains(index) ->
+                        list.add(Pair(card, "->hand"))
+                    next.lands.contains(index) && !lands.contains(index) ->
+                        list.add(Pair(card, "->lands"))
+                    next.battlefield.contains(index) && !battlefield.contains(index) ->
+                        list.add(Pair(card, "->battlefield"))
+                    next.graveyard.contains(index) && !graveyard.contains(index) ->
+                        list.add(Pair(card, "->graveyard"))
+                    next.deck.contains(index) && !deck.contains(index) ->
+                        list.add(Pair(card, "->deck"))
+
+
+                }
+            }
+            return Difference(
+                if (mana.string() != next.mana.string()) next.mana.string() else null,
+                list,
+                if (hp != next.hp) next.hp else null,
+                name,
+                if (numberCourse != next.numberCourse) next.numberCourse else null,
+                if (isLandPlayable != next.isLandPlayable) next.isLandPlayable else null,
+                if (phase == next.phase) null else next.phase
+            )
+        }
     }
 
-    private fun getAdd(curr: List<AbstractCard>, next: List<AbstractCard>): List<AbstractCard> {
-        return next.filter { card -> !curr.contains(card) }
-    }
-
-    private fun getAdd(curr: Set<AbstractCard>, next: Set<AbstractCard>): List<AbstractCard> {
-        return next.filter { card -> !curr.contains(card) }
-    }
-
-    private fun <T> getAdd(curr: Kit<T>, next: Kit<T>): List<T> {
-        return next.filter { card -> !curr.contains(card.key) || (curr.count(card.key) < next.count(card.key)) }
-            .map { it.key }
-    }
-
-    private fun getRemoved(curr: List<AbstractCard>, next: List<AbstractCard>): List<AbstractCard> {
-        return curr.filter { card -> !next.contains(card) }
-    }
-    private fun getRemoved(curr: Set<AbstractCard>, next: Set<AbstractCard>): List<AbstractCard> {
-        return curr.filter { card -> !next.contains(card) }
-    }
-
-    private fun <T> getRemoved(curr: Kit<T>, next: Kit<T>): List<T> {
-        return curr.filter { card -> !next.contains(card.key) || (next.count(card.key) > curr.count(card.key)) }
-            .map { it.key }
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        return false
-    }
 
     override fun toString(): String {
-        return "$name ($hp❤ $phase mana=${mana.flatMap { k -> (1..k.value).map { k.key } }}, hand=$hand, lands=$lands, battlefield=$battlefield, numberCourse=$numberCourse, isLandPlayable=$isLandPlayable, graveyard=$graveyard, deck=$deck)"
+        return "$name (${hp}hp $phase mana=${mana.string()}, cards=$cards, hand=$hand, lands=$lands, battlefield=$battlefield, numberCourse=$numberCourse, isLandPlayable=$isLandPlayable, graveyard=$graveyard, deck=$deck)"
     }
 
     fun updateCard(card: AbstractCard) {
-        if (hand.contains(card)) {
-            hand -= card
-            hand += card
-        } else if (battlefield.contains(card)) {
-            battlefield -= card
-            battlefield += card
-        } else if (lands.contains(card)) {
-            lands -= card
-            lands += card
-        } else if (graveyard.contains(card)){
-            val index = graveyard.indexOf(card)
-            graveyard[index] = card
-        } else if (deck.contains(card)){
-            val index = deck.indexOf(card)
-            deck[index] = card
-        }
-
+        if (cards.contains(card.id))
+            cards[card.id] = card
     }
 
-    fun activeCards(): Set<AbstractCard> = (hand + battlefield + lands)
+    fun activeCards(): List<AbstractCard> = (hand + battlefield + lands).map { cards[it]!! }
+
+    fun addIn(place: MutableSet<Int>, vararg cardsNew: AbstractCard) {
+        for (card in cardsNew) {
+            place += card.id
+            cards[card.id] = card
+        }
+    }
+
+    fun addAll(cardsNew: List<AbstractCard>, place: MutableSet<Int> = hand) {
+        addIn(place, *cardsNew.toTypedArray())
+    }
+
+    fun addInDeck(vararg cardsNew: AbstractCard) {
+        for (card in cardsNew) {
+            deck += card.id
+            cards[card.id] = card
+        }
+    }
+
+    operator fun invoke(index: Int): AbstractCard = cards[index]!!
 }
 
 

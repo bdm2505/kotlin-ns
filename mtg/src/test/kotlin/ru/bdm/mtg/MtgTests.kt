@@ -1,3 +1,4 @@
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import ru.bdm.mtg.*
 
@@ -5,29 +6,27 @@ class MtgTests {
 
     @Test
     fun stateCopy() {
-        val state = StatePlayer(
-            mana = emptyKit<Mana>() + Mana.RED,
-            lands = mutableSetOf(Land(), Land()),
-            deck = dequeOf(Land()),
-            hand = mutableSetOf(Land())
-        )
+        val land = Land()
+        val state = StatePlayer(mana = "RRC".toCost()).apply {
+            addIn(hand, land, Land())
+            addInDeck(Land(), Land())
+        }
+
 
         val stateCopy = state.copy()
         assert(state !== stateCopy)
         assert(state.mana !== stateCopy.mana)
         assert(state.hand !== stateCopy.hand)
         assert(state.hand.iterator().next() == stateCopy.hand.iterator().next())
-        assert(state.hand.iterator().next() !== stateCopy.hand.iterator().next())
-        (state.hand.iterator().next() as Land).color = Mana.BLACK
-        assert(state.hand.iterator().next() != stateCopy.hand.iterator().next())
+
+        (state(land.id) as Land).color = Mana.BLACK
+        println("${state(land.id)} ${stateCopy(land.id)}")
+        assert(state(land.id) notEq stateCopy(land.id))
 
         assert(state.battlefield !== stateCopy.battlefield)
         assert(state.deck !== stateCopy.deck)
         assert(state.lands !== stateCopy.lands)
-        assert(state.mana['R'] == stateCopy.mana['R'])
-        assert(state.deck.first() !== stateCopy.deck.first())
-        assert(state.lands.first() !== stateCopy.lands.first())
-        assert(state.lands.first() == stateCopy.lands.first())
+        assertEquals(state.mana[Mana.RED], stateCopy.mana[Mana.RED])
     }
 
     @Test
