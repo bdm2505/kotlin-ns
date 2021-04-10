@@ -177,4 +177,18 @@ class CardTest {
 
         assert(res.toString() == state.toString())
     }
+    @Test
+    fun testLandAddMana(){
+      val battle = Battle (ZeroPlayer("one"), ZeroPlayer("and")).apply{
+      me.apply{
+        addIn(lands, Land(Mana.RED))
+        
+      }
+      nextTurn()
+      assert(me.mana == "R".toCost())
+      assert(!me.isLandPlayable)
+      assert((me.cards[0]!! as Land).rotated)
+    }
 }
+    
+    
