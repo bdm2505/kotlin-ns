@@ -90,10 +90,7 @@ class CardTest {
             me.apply {
                 addIn(battlefield, creature)
             }
-            nextTurn()
-            nextTurn()
-            nextTurn()
-            nextTurn()
+            turnToEnd()
 
         }
 
@@ -191,18 +188,17 @@ class CardTest {
 
         assert(res.toString() == state.toString())
     }
-
     @Test
     fun testLandAddMana() {
         Battle(ZeroPlayer("one"), ZeroPlayer("and")).apply {
             me.apply {
                 addIn(lands, Land(Mana.RED))
-
             }
             nextTurn()
+            println(state)
             assert(me.mana == "R".toCost())
             assert(!me.isLandPlayable)
-            assert((me.cards[0]!! as Land).rotated)
+            assert((me.cards.values.first() as Land).rotated)
         }
     }
 }

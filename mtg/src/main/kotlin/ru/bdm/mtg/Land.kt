@@ -4,6 +4,12 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 interface LandInterface : RotateCardInterface {
+    val land: Land
+        get() = abstractCard as Land
+
+    fun canPlayLand() = canPlay() && !me.isLandPlayable
+
+    fun canRotateLand() = inLands() && !land.rotated
 
 }
 
@@ -11,16 +17,15 @@ class LandExecutor : Executor(), LandInterface {
 
 
     init {
-        val land = card as Land
-        one({ canPlay() && !me.isLandPlayable }, {
+        one(this::canPlayLand) {
             move(me.hand, me.lands)
             me.isLandPlayable = true
-        })
+        }
 
-        one({ inLands() && !land.rotated }, {
+        one(this::canRotateLand) {
             addMana(land.color)
             rotate()
-        })
+        }
     }
 
 }
