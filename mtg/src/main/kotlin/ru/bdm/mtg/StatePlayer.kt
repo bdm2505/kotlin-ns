@@ -108,6 +108,8 @@ class StatePlayer(
     }
 
     operator fun invoke(index: Int): AbstractCard = cards[index]!!
+
+    fun <T> get(index: Int): T where T : AbstractCard = cards[index]!! as T
 }
 
 

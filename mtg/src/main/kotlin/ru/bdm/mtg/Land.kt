@@ -6,33 +6,27 @@ import kotlinx.serialization.Serializable
 interface LandInterface : RotateCardInterface {
 
 }
-class LandExecutor : Executor(), LandInterface {
-    val land: Land
-        get() = card as Land
 
-    fun conditionCanPlay():Boolean {
-        return canPlay() && !me.isLandPlayable
-    }
-    fun reactionCanPlay(): List<() -> Unit>{
-        return listOf {
+class LandExecutor : Executor(), LandInterface {
+
+
+    init {
+        val land = card as Land
+        one({ canPlay() && !me.isLandPlayable }, {
             move(me.hand, me.lands)
             me.isLandPlayable = true
-        }
-    }
+        })
 
-    fun conditionRotate():Boolean {
-        return inLands() && !land.rotated
-    }
-    fun reactionRotate(): List<() -> Unit>{
-        return listOf {
+        one({ inLands() && !land.rotated }, {
             addMana(land.color)
             rotate()
-        }
+        })
     }
+
 }
 
 @Serializable
-@SerialName("land")
+@SerialName("Land")
 open class Land() : RotateCard() {
     var color: Mana = Mana.RED
 

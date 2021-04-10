@@ -2,15 +2,15 @@ package ru.bdm.mtg
 
 
 interface CardInterface {
-    val battleState: BattleState
+    val state: BattleState
     val abstractCard: AbstractCard
     val card: Card
         get() = abstractCard as Card
 
     val me: StatePlayer
-        get() = battleState.me
+        get() = state.me
     val enemy: StatePlayer
-        get() = battleState.enemy
+        get() = state.enemy
 
     fun isStartPhase(player: StatePlayer = me): Boolean = player.phase == Phase.START
     fun isAttackPhase(player: StatePlayer = me): Boolean = player.phase == Phase.ATTACK
@@ -48,7 +48,7 @@ interface CardInterface {
             start.remove(movedCard.id)
             end.add(movedCard.id)
         } else {
-            System.err.println("error move $movedCard from $start to $end   $battleState")
+            System.err.println("error move $movedCard from $start to $end   $state")
         }
     }
 

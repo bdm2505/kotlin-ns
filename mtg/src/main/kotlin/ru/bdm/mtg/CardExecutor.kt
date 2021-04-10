@@ -3,7 +3,7 @@ package ru.bdm.mtg
 import ru.bdm.mtg.cards.Creature
 import ru.bdm.mtg.cards.CreatureExecutor
 
-object CardExecutor {
+class CardExecutor {
 
     private val cardExecutor = Executor()
     private val landExecutor = LandExecutor()
@@ -11,7 +11,8 @@ object CardExecutor {
 
     fun resultStates(battleState: BattleState, cards: List<AbstractCard>): List<BattleState> {
         return cards.flatMap {
-            executor(it).resultStates(battleState, it) }
+            executor(it).resultStates(battleState, it)
+        }
     }
 
     fun executeAll(battleState: BattleState, cards: List<AbstractCard>) {
@@ -28,40 +29,38 @@ object CardExecutor {
 
 open class Executor : CardInterface {
     override lateinit var abstractCard: AbstractCard
-    override lateinit var battleState: BattleState
-    private val cond = "condition"
-    private val reac = "reaction"
+    override lateinit var state: BattleState
 
-    private fun activeReactions(battleStateNew: BattleState, cardNew: AbstractCard): List<() -> Unit> {
-        battleState = battleStateNew
-        abstractCard = cardNew
-        val list = mutableListOf<() -> Unit>()
-        for (method in javaClass.methods)
-            if (method.name.startsWith(cond)) {
-                if (method.invoke(this) as Boolean) {
-                    val name = method.name.substring(cond.length)
-                    val funs = javaClass.getMethod(reac + name).invoke(this) as List<() -> Unit>
-                    list.addAll(funs)
-                }
-            }
-        return list
+    private val actions: MutableMap<() -> Boolean, () -> List<() -> Unit>> = mutableMapOf()
+
+    fun one(cond: () -> Boolean, react: () -> Unit) {
+        actions[cond] = { listOf(react) }
+    }
+
+    fun any(cond: () -> Boolean, reacts: () -> List<() -> Unit>) {
+        actions[cond] = reacts
+    }
+
+    private fun activeReactions(): List<() -> Unit> {
+        return actions.flatMap { if (it.key()) it.value() else listOf() }
     }
 
     fun resultStates(battleStateNew: BattleState, cardNew: AbstractCard): List<BattleState> {
-        val st = battleStateNew.clone()
-        val card = cardNew.copy()
-        st.updateCard(card)
-        return activeReactions(st, card).map {
+        state = battleStateNew.clone()
+        abstractCard = cardNew.copy()
+        state.updateCard(card)
+        return activeReactions().map {
             it()
-            val res = battleState
-            battleState = battleStateNew.clone()
-            battleState.updateCard(card.copy())
+            val res = state
+            state = battleStateNew.clone()
+            state.updateCard(card.copy())
             res
         }
     }
 
+
     fun executeAll(battleStateNew: BattleState, card: AbstractCard) {
-        for (funs in activeReactions(battleStateNew, card))
+        for (funs in activeReactions())
             funs()
     }
 }

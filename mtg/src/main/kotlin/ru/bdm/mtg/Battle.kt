@@ -5,6 +5,8 @@ import ru.bdm.mtg.cards.Creature
 
 class Battle(val player: Player, val enemyPlayer: Player) {
 
+    val executors = CardExecutor()
+
     var state: BattleState = BattleState(StatePlayer(player.name), StatePlayer(enemyPlayer.name))
     val me: StatePlayer
         get() = state.me
@@ -26,7 +28,7 @@ class Battle(val player: Player, val enemyPlayer: Player) {
     }
 
     private fun executeAllCards(): BattleState {
-        CardExecutor.executeAll(state, me.activeCards().toList())
+        executors.executeAll(state, me.activeCards().toList())
         return state
     }
 
@@ -34,7 +36,7 @@ class Battle(val player: Player, val enemyPlayer: Player) {
     fun isEnd(): Boolean = me.hp <= 0 || enemy.hp <= 0
 
     private fun nextStates(cards: List<AbstractCard>): List<BattleState> {
-        return CardExecutor.resultStates(state, cards.toList())
+        return executors.resultStates(state, cards.toList())
     }
 }
 

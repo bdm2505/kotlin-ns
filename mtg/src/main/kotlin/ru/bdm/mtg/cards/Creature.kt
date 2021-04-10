@@ -15,7 +15,8 @@ interface CreatureInterface : RotateCardInterface {
         isAttackPhase() && inBattlefield() && !creature.rotated && !creature.attack && !creature.isWentOnBattlefield
 
     fun canEndAttack(): Boolean = isEndAttackPhase() && inBattlefield() && creature.attack
-    fun canBlockAttack(): Boolean = isBlockPhase() && inBattlefield() && !creature.rotated && !creature.isBlocked
+    fun canBlockAttack(): Boolean =
+        isBlockPhase() && inBattlefield() && !creature.rotated && !creature.isBlocked && thereAreBlockableCreatures()
 
     fun thereAreBlockableCreatures(): Boolean {
         for (index in enemy.battlefield)
@@ -50,6 +51,9 @@ interface CreatureInterface : RotateCardInterface {
 
     fun blockCreature(enemy: Creature) {
         enemy.hp -= creature.force
+        println("enemy cards " + this.enemy.cards)
+        println("me $creature")
+        println("enemy $enemy")
         creature.hp -= enemy.force
         if (creature.hp <= 0) {
             move(me.battlefield, me.graveyard)
@@ -64,46 +68,23 @@ interface CreatureInterface : RotateCardInterface {
 
 class CreatureExecutor : Executor(), CreatureInterface {
 
-    fun conditionCanAttack(): Boolean {
-        return canAttack()
-    }
-
-    fun reactionCanAttack(): List<() -> Unit> {
-
-        return listOf {
+    init {
+        one(this::canAttack) {
             creature.attack = true
             rotate()
         }
-    }
-
-    fun conditionCanPlay(): Boolean {
-        return canPlay()
-    }
-
-    fun reactionCanPlay(): List<() -> Unit> {
-        return listOf {
+        one(this::canPlay) {
             play()
             creature.isWentOnBattlefield = true
         }
+        one(this::canEndAttack) {
+            enemy.hp -= creature.force
+        }
+
+        any(this::canBlockAttack) {
+            blockingReactions()
+        }
     }
-
-    fun conditionEndAttack(): Boolean {
-        return canEndAttack()
-    }
-
-    fun reactionEndAttack(): List<() -> Unit> {
-        return listOf { enemy.hp -= creature.force }
-    }
-
-    fun conditionBlockAttack(): Boolean {
-        return canBlockAttack() && thereAreBlockableCreatures()
-    }
-
-    fun reactionBlockAttack(): List<() -> Unit> {
-        return blockingReactions()
-    }
-
-
 }
 
 @Serializable
@@ -131,7 +112,7 @@ open class Creature() : RotateCard() {
     }
 
     override fun toString(): String {
-        return super.toString() + (if (attack) "A" else "") + "(${force}_$hp/$maxHp)"
+        return super.toString() + (if (attack) "A" else "") + (if (isBlocked) "B" else "") + "(${force}_$hp/$maxHp)"
     }
 
     override fun eq(card: Any?): Boolean {

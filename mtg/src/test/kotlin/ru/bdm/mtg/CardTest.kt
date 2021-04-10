@@ -135,11 +135,25 @@ class CardTest {
             assert(!cr2.rotated)
             assert(!cr2.attack)
         }
-
-
     }
+
     @Test
-    fun blockTest(){
+    fun testBlockSomeoneAttack() {
+        Battle(ZeroPlayer("one"), ZeroPlayer("two")).apply {
+            me.apply {
+                addIn(battlefield, Creature(3, 3).apply { attack = true }, Creature(3, 4).apply { attack = true })
+            }
+            enemy.addIn(enemy.battlefield, Creature(5, 7))
+            turnToEnd()
+
+            assert(me.battlefield.size == 1)
+            assert(me.graveyard.size == 1)
+            assert((enemy.cards.values.first() as Creature).hp == 4)
+        }
+    }
+
+    @Test
+    fun testBlockCard() {
         val state = BattleState().apply {
             me.apply {
                 addIn(battlefield, Creature(2, 4))
@@ -147,12 +161,12 @@ class CardTest {
                 phase = Phase.BLOCK
             }
             enemy.apply {
-                addIn(battlefield, Creature(3,5).apply { attack = true })
+                addIn(battlefield, Creature(3, 5).apply { attack = true })
                 phase = Phase.BLOCK
             }
         }
         val cards = state.me.cards.values.toList()
-        val states = CardExecutor.resultStates(state, cards)
+        val states = CardExecutor().resultStates(state, cards)
         assert((states[0].me(0) as Creature).hp == 1)
         assert((states[0].me(1) as Creature).hp == 4)
         assert((states[1].me(0) as Creature).hp == 4)
@@ -177,17 +191,19 @@ class CardTest {
 
         assert(res.toString() == state.toString())
     }
+
     @Test
-    fun testLandAddMana(){
-      val battle = Battle (ZeroPlayer("one"), ZeroPlayer("and")).apply{
-      me.apply{
-        addIn(lands, Land(Mana.RED))
-        
-      }
-      nextTurn()
-      assert(me.mana == "R".toCost())
-      assert(!me.isLandPlayable)
-      assert((me.cards[0]!! as Land).rotated)
+    fun testLandAddMana() {
+        Battle(ZeroPlayer("one"), ZeroPlayer("and")).apply {
+            me.apply {
+                addIn(lands, Land(Mana.RED))
+
+            }
+            nextTurn()
+            assert(me.mana == "R".toCost())
+            assert(!me.isLandPlayable)
+            assert((me.cards[0]!! as Land).rotated)
+        }
     }
 }
     
