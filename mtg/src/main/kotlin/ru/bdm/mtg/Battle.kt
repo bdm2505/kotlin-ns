@@ -12,6 +12,9 @@ class Battle(val player: Player = ZeroPlayer("zero1"), val enemyPlayer: Player =
     val enemy: StatePlayer
         get() = state.enemy
 
+    fun start() {
+        state.startTurn()
+    }
 
     fun nextTurn() {
         state = turn(if (player.name == me.name) player else enemyPlayer)
@@ -22,7 +25,7 @@ class Battle(val player: Player = ZeroPlayer("zero1"), val enemyPlayer: Player =
         if (me.phase == Phase.END_ATTACK) {
             return executeAllCards().nextTurn()
         }
-        val states = nextStates(me.activeCards()) + state.clone().nextTurn()
+        val states = nextStates(me.activeCards()) + state.clone().endAction().nextTurn()
         return player.chooseAction(state, states)
     }
 
@@ -32,7 +35,7 @@ class Battle(val player: Player = ZeroPlayer("zero1"), val enemyPlayer: Player =
     }
 
 
-    fun isEnd(): Boolean = me.hp <= 0 || enemy.hp <= 0
+    fun isEnd(): Boolean = me.hp <= 0 || enemy.hp <= 0 || me.deck.isEmpty() || enemy.deck.isEmpty()
 
     private fun nextStates(cards: List<AbstractCard>): List<BattleState> {
         return CardExecutor.resultStates(state, cards.toList())
@@ -41,10 +44,10 @@ class Battle(val player: Player = ZeroPlayer("zero1"), val enemyPlayer: Player =
 
 fun main() {
     val battle = Battle(SocketPlayer("first", 24009), ZeroPlayer("second")).apply {
-        me.addAll(List(3) { Creature(3, 4) })
+        me.addAll(List(4) { Creature(3, 4) })
         enemy.addAll(List(4) { Creature(4, 2) })
     }
-
+    battle.start()
     println("started..")
     while (!battle.isEnd()) {
         battle.nextTurn()

@@ -60,6 +60,7 @@ open class Executor : CardInterface {
         state.updateCard(card)
         return activeReactions().map {
             it()
+            state.endAction()
             val res = state
             state = battleStateNew.clone()
             abstractCard = cardNew.copy()

@@ -13,7 +13,7 @@ class TwoColorLandTest{
       nextTurn()
       assert(me.get(land).rotated)
       assert(me.lands.contains(land.id))
-      me.get(land).reset()
+      me.get(land).endTurn(state)
       val states = CardExecutor.resultStates(state, listOf(land))
       assert(states.size == 2)
       assert(states[0].me.mana == "R".toMana())

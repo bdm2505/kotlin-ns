@@ -11,7 +11,9 @@ object NextId : () -> Int {
 @Serializable
 abstract class AbstractCard : Copied {
     abstract val id: Int
-    abstract fun reset()
+    abstract fun startTurn(state: BattleState)
+    abstract fun endAction(state: BattleState)
+    abstract fun endTurn(state: BattleState)
     abstract override fun copy(): AbstractCard
 
     abstract infix fun eq(card: Any?): Boolean
@@ -19,7 +21,7 @@ abstract class AbstractCard : Copied {
     infix fun notEq(card: Any?): Boolean = !eq(card)
 
     abstract var cost: Kit<Mana>
-    abstract var tags: MutableList<Tag>
+    abstract var tags: MutableSet<Tag>
     abstract var status: MutableSet<Status>
 
     abstract fun executor(): Executor
@@ -36,8 +38,8 @@ abstract class AbstractCard : Copied {
 open class Card(override val id: Int = NextId()) : AbstractCard(), Cloneable {
 
     override var cost: Kit<Mana> = emptyKit()
-    override var tags: MutableList<Tag> = mutableListOf()
-    override var status: MutableSet<Status> = mutableSetOf(Status.EMPTY)
+    final override var tags: MutableSet<Tag> = mutableSetOf()
+    final override var status: MutableSet<Status> = mutableSetOf(Status.EMPTY)
 
     override fun executor(): Executor = Executor()
 
@@ -61,6 +63,18 @@ open class Card(override val id: Int = NextId()) : AbstractCard(), Cloneable {
         return javaClass.simpleName + "-$id"
     }
 
+    override fun startTurn(state: BattleState) {
+
+    }
+
+    override fun endAction(state: BattleState) {
+
+    }
+
+    override fun endTurn(state: BattleState) {
+
+    }
+
 
     override fun copy(): Card {
         val card = (clone() as Card)
@@ -70,7 +84,7 @@ open class Card(override val id: Int = NextId()) : AbstractCard(), Cloneable {
 
     open fun copyDataFrom(card: Card) {
         cost = HashMap(card.cost)
-        tags = ArrayList(card.tags)
+        tags = HashSet(card.tags)
         status = HashSet(card.status)
     }
 
@@ -87,7 +101,6 @@ open class Card(override val id: Int = NextId()) : AbstractCard(), Cloneable {
         return id
     }
 
-    override fun reset() {}
 
     override infix fun eq(card: Any?): Boolean {
         if (this === card) return true

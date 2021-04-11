@@ -2,5 +2,7 @@ package ru.bdm.mtg
 
 enum class Tag {
     CREATURE,
-    ELEMENTAL
+    ELEMENTAL,
+    HUMAN,
+    CLERIC
 }

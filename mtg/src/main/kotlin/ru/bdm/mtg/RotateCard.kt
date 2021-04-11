@@ -19,7 +19,8 @@ interface RotateCardInterface : CardInterface {
 @SerialName("RotateCard")
 open class RotateCard() : Card() {
     var rotated: Boolean = false
-    constructor(rotate: Boolean) : this(){
+
+    constructor(rotate: Boolean) : this() {
         rotated = rotate
     }
 
@@ -28,8 +29,8 @@ open class RotateCard() : Card() {
     }
 
 
-    override fun reset() {
-        super.reset()
+    override fun endTurn(state: BattleState) {
+        super.endTurn(state)
         rotated = false
     }
 }
