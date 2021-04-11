@@ -1,6 +1,6 @@
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import ru.bdm.mtg.Land
+import ru.bdm.mtg.cards.lands.Land
 import ru.bdm.mtg.Mana
 import ru.bdm.mtg.StatePlayer
 import ru.bdm.mtg.cards.Creature

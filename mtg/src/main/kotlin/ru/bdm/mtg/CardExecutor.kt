@@ -2,6 +2,8 @@ package ru.bdm.mtg
 
 import ru.bdm.mtg.cards.Creature
 import ru.bdm.mtg.cards.CreatureExecutor
+import ru.bdm.mtg.cards.lands.Land
+import ru.bdm.mtg.cards.lands.LandExecutor
 
 class CardExecutor {
 

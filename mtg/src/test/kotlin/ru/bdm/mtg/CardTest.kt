@@ -3,6 +3,7 @@ package ru.bdm.mtg
 import org.junit.jupiter.api.Test
 import ru.bdm.mtg.cards.CardSerializer
 import ru.bdm.mtg.cards.Creature
+import ru.bdm.mtg.cards.lands.Land
 
 class CardTest {
 

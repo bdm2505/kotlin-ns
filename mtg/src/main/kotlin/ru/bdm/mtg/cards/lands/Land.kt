@@ -1,7 +1,11 @@
-package ru.bdm.mtg
+package ru.bdm.mtg.cards.lands
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import ru.bdm.mtg.Executor
+import ru.bdm.mtg.Mana
+import ru.bdm.mtg.RotateCard
+import ru.bdm.mtg.RotateCardInterface
 
 interface LandInterface : RotateCardInterface {
     val land: Land

@@ -5,6 +5,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import ru.bdm.mtg.*
+import ru.bdm.mtg.cards.lands.Land
 
 
 object CardSerializer {

@@ -1,8 +1,5 @@
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import ru.bdm.mtg.Land
-import ru.bdm.mtg.StatePlayer
-import ru.bdm.mtg.plus
 import ru.bdm.neurons.*
 
 
