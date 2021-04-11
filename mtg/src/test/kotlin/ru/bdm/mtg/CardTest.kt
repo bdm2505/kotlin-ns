@@ -1,9 +1,11 @@
 package ru.bdm.mtg
 
+import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestFactory
 import ru.bdm.mtg.cards.CardSerializer
 import ru.bdm.mtg.cards.Creature
-import ru.bdm.mtg.cards.lands.Land
+import ru.bdm.mtg.cards.lands.*
 
 class CardTest {
 
@@ -11,7 +13,7 @@ class CardTest {
     fun testPlayLandSimple() {
         val land = Land()
         val battle = Battle(ZeroPlayer("one"), ZeroPlayer("two")).apply {
-            me.addIn(me.hand, land.copy())
+            me.add(Place.HAND, land.copy())
         }
 
         battle.nextTurn()
@@ -22,7 +24,7 @@ class CardTest {
     fun testPlayLandIsLandPlayable() {
         val land = Land()
         val battle = Battle(ZeroPlayer("one"), ZeroPlayer("two")).apply {
-            me.addIn(me.hand, land.copy())
+            me.add(Place.HAND, land.copy())
         }
         battle.me.isLandPlayable = true
 
@@ -34,7 +36,7 @@ class CardTest {
     fun testRotateLand() {
         val land = Land()
         val battle = Battle(ZeroPlayer("one"), ZeroPlayer("two")).apply {
-            me.addIn(me.lands, land.copy())
+            me.add(Place.LANDS, land.copy())
         }
         battle.apply {
             nextTurn()
@@ -47,7 +49,7 @@ class CardTest {
     fun testCanAttack() {
         val creature = Creature(2,3)
         val battle = Battle(ZeroPlayer("one"), ZeroPlayer("two")).apply {
-            me.addIn(me.battlefield, creature.copy())
+            me.add(Place.BATTLEFIELD, creature.copy())
             me.phase = Phase.ATTACK
         }
         battle.apply {
@@ -62,7 +64,7 @@ class CardTest {
         println(battle.me)
         battle.me.apply {
 
-            addIn(battlefield, creature2)
+            add(Place.BATTLEFIELD, creature2)
             battlefield -= creature.id
             phase = Phase.ATTACK
         }
@@ -83,7 +85,7 @@ class CardTest {
     fun testAttackEmptyEnemyBattlefield() {
         Battle(ZeroPlayer("one"), ZeroPlayer("two")).apply {
             val creature = Creature(3, 4)
-            me.addIn(me.battlefield, creature)
+            me.add(Place.BATTLEFIELD, creature)
             turnToEnd()
 
             assert(me.phase == Phase.END)
@@ -105,10 +107,10 @@ class CardTest {
         val battle = Battle(ZeroPlayer("one"), ZeroPlayer("two"))
         battle.apply {
             me.apply {
-                addIn(battlefield, Creature(2, 4))
+                add(Place.BATTLEFIELD, Creature(2, 4))
             }
             enemy.apply {
-                addIn(battlefield, Creature(2,4))
+                add(Place.BATTLEFIELD, Creature(2, 4))
             }
             turnToEnd()
             val cr1 = me(me.battlefield.first()) as Creature
@@ -125,10 +127,8 @@ class CardTest {
     @Test
     fun testBlockSomeoneAttack() {
         Battle(ZeroPlayer("one"), ZeroPlayer("two")).apply {
-            me.apply {
-                addIn(battlefield, Creature(3, 3).apply { attack = true }, Creature(3, 4).apply { attack = true })
-            }
-            enemy.addIn(enemy.battlefield, Creature(5, 7))
+            me.add(Place.BATTLEFIELD, Creature(3, 3).apply { attack = true }, Creature(3, 4).apply { attack = true })
+            enemy.add(Place.BATTLEFIELD, Creature(5, 7))
             turnToEnd()
 
             assert(me.battlefield.size == 1)
@@ -144,8 +144,8 @@ class CardTest {
             val att = Creature(3, 10)
             val bl1 = Creature(5, 4)
             val bl2 = Creature(5, 4)
-            me.addIn(me.battlefield, att)
-            enemy.addIn(enemy.battlefield, bl1, bl2)
+            me.add(Place.BATTLEFIELD, att)
+            enemy.add(Place.BATTLEFIELD, bl1, bl2)
             turnToEnd()
             assert(me.battlefield.isEmpty())
             assert(me.graveyard.size == 1)
@@ -165,8 +165,8 @@ class CardTest {
             val bl1 = Creature(5, 4)
             val bl2 = Creature(5, 4)
             val bl3 = Creature(5, 4)
-            me.addIn(me.battlefield, att1, att2, att3, att4)
-            enemy.addIn(enemy.battlefield, bl1, bl2, bl3)
+            me.add(Place.BATTLEFIELD, att1, att2, att3, att4)
+            enemy.add(Place.BATTLEFIELD, bl1, bl2, bl3)
             turnToEnd()
         }
     }
@@ -177,16 +177,16 @@ class CardTest {
         val cr2 = Creature(2, 4)
         val state = BattleState().apply {
             me.apply {
-                addIn(battlefield, cr1, cr2)
+                add(Place.BATTLEFIELD, cr1, cr2)
                 phase = Phase.BLOCK
             }
             enemy.apply {
-                addIn(battlefield, Creature(3, 5).apply { attack = true })
+                add(Place.BATTLEFIELD, Creature(3, 5).apply { attack = true })
                 phase = Phase.BLOCK
             }
         }
         val cards = state.me.cards.values.toList()
-        val states = CardExecutor().resultStates(state, cards)
+        val states = CardExecutor.resultStates(state, cards)
         assert(states[0].me.get(cr1).hp == 1)
         assert(states[0].me.get(cr2).hp == 4)
         assert(states[1].me.get(cr1).hp == 4)
@@ -200,8 +200,8 @@ class CardTest {
         val state = BattleState().apply {
             me.apply {
                 hp = 90
-                addIn(hand, Creature(2, 4))
-                addIn(battlefield, Land())
+                add(Place.HAND, Creature(2, 4))
+                add(Place.BATTLEFIELD, Land())
             }
         }
 
@@ -215,13 +215,42 @@ class CardTest {
     fun testLandAddMana() {
         Battle(ZeroPlayer("one"), ZeroPlayer("and")).apply {
             me.apply {
-                addIn(lands, Land(Mana.RED))
+                add(Place.LANDS, Land(Mana.RED))
             }
             nextTurn()
             println(state)
-            assert(me.mana == "R".toCost())
+            assert(me.mana == "R".toMana())
             assert(!me.isLandPlayable)
             assert((me.cards.values.first() as Land).rotated)
+        }
+    }
+
+
+    @TestFactory
+    fun testPlayableCard(): Collection<DynamicTest> {
+        val cards = listOf(
+            Creature(2, 3),
+            Land(),
+            Forest(),
+            Island(),
+            Mountain(),
+            Plains(),
+            Swamp(),
+            TwoColorLand(Mana.RED, Mana.WHITE),
+            BloodfellCaves()
+        )
+
+        return cards.map {
+            DynamicTest.dynamicTest("test play ${it.name}") {
+                Battle().apply {
+                    me.add(Place.HAND, it)
+                    me.mana += it.cost
+
+                    nextTurn()
+                    assert(me.hand.isEmpty())
+                    assert(me.mana.counts() == 0)
+                }
+            }
         }
     }
 }

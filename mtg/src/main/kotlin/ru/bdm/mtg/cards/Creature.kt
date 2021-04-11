@@ -42,7 +42,6 @@ interface CreatureInterface : RotateCardInterface {
         for (index in enemy.battlefield) {
             val cardEnemy = enemy(index)
             if (canBlock(cardEnemy)) {
-                println("list add $creature block $cardEnemy")
                 list.add {
                     creature.isBlocked = true
                     blockCreature(cardEnemy.id)
@@ -103,6 +102,10 @@ open class Creature() : RotateCard() {
         this.force = f
         this.hp = hp
         this.maxHp = hp
+    }
+
+    override fun executor(): Executor {
+        return CreatureExecutor()
     }
 
     override fun reset() {

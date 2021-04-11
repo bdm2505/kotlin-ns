@@ -89,24 +89,32 @@ class StatePlayer(
 
     fun activeCards(): List<AbstractCard> = (hand + battlefield + lands).map { cards[it]!! }
 
-    fun addIn(set: MutableSet<Int>, vararg cardsNew: AbstractCard) {
-        val place = when (set) {
-            battlefield -> Place.BATTLEFIELD
-            hand -> Place.HAND
-            lands -> Place.LANDS
-            else -> throw Exception("no correct add in $set $cardsNew")
-        }
-
+    fun add(place: Place, vararg cardsNew: AbstractCard) {
+        val coll = set(place)
         for (card in cardsNew) {
-            set += card.id
+            coll += card.id
             cards[card.id] = card
-            card.place = place
         }
     }
 
+    fun set(place: Place): MutableCollection<Int> = when (place) {
+        Place.BATTLEFIELD -> battlefield
+        Place.HAND -> hand
+        Place.DECK -> deck
+        Place.LANDS -> lands
+        Place.GRAVEYARD -> graveyard
+    }
 
-    fun addAll(cardsNew: List<AbstractCard>, place: MutableSet<Int> = hand) {
-        addIn(place, *cardsNew.toTypedArray())
+    fun place(set: MutableSet<Int>) = when (set) {
+        battlefield -> Place.BATTLEFIELD
+        hand -> Place.HAND
+        lands -> Place.LANDS
+        else -> throw Exception("no correct get Place in $set ")
+    }
+
+
+    fun addAll(cardsNew: List<AbstractCard>, place: Place = Place.HAND) {
+        add(place, *cardsNew.toTypedArray())
     }
 
     fun addInDeck(vararg cardsNew: AbstractCard) {

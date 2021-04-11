@@ -20,18 +20,27 @@ fun <T> ArrayDeque<T>.copy(): ArrayDeque<T> where T : Copied {
     return ArrayDeque(this.map { it.copy() as T })
 }
 
-fun String.toCost(): Kit<Mana> {
+fun String.toMana(): Kit<Mana> {
     val kit = emptyKit<Mana>()
-    this.map{ getMana(it) }.forEach(kit::plus)
+    this.map { getMana(it) }.forEach(kit::plus)
     return kit
 }
 
 
 operator fun <T> Kit<T>.plus(element: T): Kit<T> {
-    get(element)?.let{
+    get(element)?.let {
         put(element, get(element)!! + 1)
     } ?: run { this[element] = 1 }
     return this
+}
+
+operator fun <T> Kit<T>.plusAssign(coll: Kit<T>) {
+    for ((color, count) in coll) {
+        if (containsKey(color))
+            this[color] = this[color]!! + count
+        else
+            this[color] = count
+    }
 }
 
 operator fun <T> Kit<T>.minus(element: T): Kit<T>{

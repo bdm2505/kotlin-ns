@@ -2,29 +2,33 @@ package ru.bdm.mtg.cards.lands
 
 import ru.bdm.mtg.Executor
 import ru.bdm.mtg.Mana
-import ru.bdm.mtg.RotateCard
+
 
 interface TwoColorLandInterface : LandInterface {
     val cland: TwoColorLand
         get() = abstractCard as TwoColorLand
 
+    fun playLandAndRotate() {
+        move(me.hand, me.lands)
+        me.isLandPlayable = true
+        rotate()
+    }
+
     fun addAllMana() = listOf({
-            addMana(cland.first)
-            rotate()
-        }, {
-            addMana(cland.second)
-            rotate()
-        })
+        addMana(cland.color)
+        rotate()
+    }, {
+        addMana(cland.colorTwo)
+        rotate()
+    })
 
 }
 
-class TwoColorLandExecutor : Executor(), TwoColorLandInterface {
+open class TwoColorLandExecutor : Executor(), TwoColorLandInterface {
 
     init {
         one(this::canPlayLand) {
-            move(me.hand, me.lands)
-            me.isLandPlayable = true
-            rotate()
+            playLandAndRotate()
         }
         any(this::canRotateLand) {
             addAllMana()
@@ -32,20 +36,23 @@ class TwoColorLandExecutor : Executor(), TwoColorLandInterface {
     }
 }
 
-class TwoColorLand(val first: Mana, val second: Mana) : RotateCard() {
+open class TwoColorLand(color: Mana, val colorTwo: Mana) : Land(color) {
+
+    override fun executor(): Executor {
+        return TwoColorLandExecutor()
+    }
 
     override fun eq(card: Any?): Boolean {
         if (this === card) return true
         if (card !is TwoColorLand) return false
         if (!super.equals(card)) return false
 
-        if (first != card.first) return false
-        if (second != card.second) return false
+        if (colorTwo != card.colorTwo) return false
 
         return true
     }
 
     override fun toString(): String {
-        return super.toString() + "'$first or $second'"
+        return super.toString() + " or $colorTwo'"
     }
 }

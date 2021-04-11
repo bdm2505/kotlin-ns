@@ -3,9 +3,8 @@ package ru.bdm.mtg
 import ru.bdm.mtg.cards.Creature
 
 
-class Battle(val player: Player, val enemyPlayer: Player) {
+class Battle(val player: Player = ZeroPlayer("zero1"), val enemyPlayer: Player = ZeroPlayer("zero2")) {
 
-    val executors = CardExecutor()
 
     var state: BattleState = BattleState(StatePlayer(player.name), StatePlayer(enemyPlayer.name))
     val me: StatePlayer
@@ -28,7 +27,7 @@ class Battle(val player: Player, val enemyPlayer: Player) {
     }
 
     private fun executeAllCards(): BattleState {
-        executors.executeAll(state, me.activeCards().toList())
+        CardExecutor.executeAll(state, me.activeCards().toList())
         return state
     }
 
@@ -36,7 +35,7 @@ class Battle(val player: Player, val enemyPlayer: Player) {
     fun isEnd(): Boolean = me.hp <= 0 || enemy.hp <= 0
 
     private fun nextStates(cards: List<AbstractCard>): List<BattleState> {
-        return executors.resultStates(state, cards.toList())
+        return CardExecutor.resultStates(state, cards.toList())
     }
 }
 

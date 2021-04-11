@@ -1,15 +1,24 @@
 package ru.bdm.mtg
 
-import ru.bdm.mtg.cards.Creature
-import ru.bdm.mtg.cards.CreatureExecutor
-import ru.bdm.mtg.cards.lands.Land
-import ru.bdm.mtg.cards.lands.LandExecutor
+import kotlin.reflect.KClass
 
-class CardExecutor {
+object CardExecutor {
 
-    private val cardExecutor = Executor()
-    private val landExecutor = LandExecutor()
-    private val creatureExecutor = CreatureExecutor()
+    val executors: MutableMap<KClass<*>, Executor> = mutableMapOf()
+
+    init {
+        executors[Card::class] = Executor()
+
+        val card = Card()
+
+        executors[card::class]
+    }
+
+    fun isRegistered(kclass: KClass<*>) = executors.containsKey(kclass)
+
+    fun register(kclass: KClass<*>, executor: Executor) {
+        executors[kclass] = executor
+    }
 
     fun resultStates(battleState: BattleState, cards: List<AbstractCard>): List<BattleState> {
         return cards.flatMap {
@@ -21,11 +30,7 @@ class CardExecutor {
         cards.forEach { executor(it).executeAll(battleState, it) }
     }
 
-    private fun executor(card: AbstractCard) = when (card) {
-        is Creature -> creatureExecutor
-        is Land -> landExecutor
-        else -> cardExecutor
-    }
+    private fun executor(card: AbstractCard): Executor = executors[card::class]!!
 }
 
 

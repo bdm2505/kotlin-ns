@@ -15,15 +15,19 @@ interface LandInterface : RotateCardInterface {
 
     fun canRotateLand() = inLands() && !land.rotated
 
+    fun playLand() {
+        move(me.hand, me.lands)
+        me.isLandPlayable = true
+    }
+
 }
 
-class LandExecutor : Executor(), LandInterface {
+open class LandExecutor : Executor(), LandInterface {
 
 
     init {
         one(this::canPlayLand) {
-            move(me.hand, me.lands)
-            me.isLandPlayable = true
+            playLand()
         }
 
         one(this::canRotateLand) {
@@ -37,6 +41,9 @@ class LandExecutor : Executor(), LandInterface {
 @Serializable
 @SerialName("Land")
 open class Land() : RotateCard() {
+
+    override fun executor(): Executor = LandExecutor()
+
     var color: Mana = Mana.RED
 
     constructor(color: Mana, rotate: Boolean = false) : this() {

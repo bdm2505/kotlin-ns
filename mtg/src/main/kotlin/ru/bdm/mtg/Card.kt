@@ -21,7 +21,15 @@ abstract class AbstractCard : Copied {
     abstract var cost: Kit<Mana>
     abstract var tags: MutableList<Tag>
     abstract var status: MutableSet<Status>
-    abstract var place: Place
+
+    abstract fun executor(): Executor
+
+    init {
+        if (!CardExecutor.isRegistered(this::class)) {
+            println("register executor for ${this::class.simpleName} -> ${executor()::class.simpleName}")
+            CardExecutor.register(this::class, executor())
+        }
+    }
 }
 
 @Serializable
@@ -30,7 +38,8 @@ open class Card(override val id: Int = NextId()) : AbstractCard(), Cloneable {
     override var cost: Kit<Mana> = emptyKit()
     override var tags: MutableList<Tag> = mutableListOf()
     override var status: MutableSet<Status> = mutableSetOf(Status.EMPTY)
-    override var place: Place = Place.DECK
+
+    override fun executor(): Executor = Executor()
 
 
     fun tag(vararg tag: Tag) {
@@ -42,7 +51,7 @@ open class Card(override val id: Int = NextId()) : AbstractCard(), Cloneable {
     }
 
     fun cost(s: String) {
-        cost = s.toCost()
+        cost = s.toMana()
     }
 
     val name: String

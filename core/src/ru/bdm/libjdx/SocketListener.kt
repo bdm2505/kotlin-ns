@@ -1,7 +1,6 @@
 package ru.bdm.libjdx
 
 import com.badlogic.gdx.Gdx
-import ru.bdm.mtg.BattleState
 import ru.bdm.mtg.cards.CardSerializer
 import java.io.PrintWriter
 import java.net.Socket
@@ -38,7 +37,7 @@ class SocketListener(val mainScreen: MainScreen) : Thread() {
                     if (states.size > 1) {
                         mainScreen.isUpdated = true
                     } else {
-                        //sleep(500)
+                        sleep(300)
                     }
                     mainScreen.update(curr, states)
                     println("end runable")
@@ -50,6 +49,7 @@ class SocketListener(val mainScreen: MainScreen) : Thread() {
                 output.flush()
             }
         } catch (e: Exception){
+            sleep(3000)
             Gdx.app.exit()
         }
     }
