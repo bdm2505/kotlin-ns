@@ -7,8 +7,8 @@ import ru.bdm.libjdx.LibGdxStarter;
 public class DesktopLauncher {
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		config.width = 70 * 15;
-		config.height = 70 * 9;
+		config.width = 60 * 15;
+		config.height = 60 * 9;
 		new LwjglApplication(new LibGdxStarter(), config);
 	}
 }

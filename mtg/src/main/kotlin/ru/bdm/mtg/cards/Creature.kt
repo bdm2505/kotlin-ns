@@ -15,6 +15,8 @@ interface CreatureInterface : RotateCardInterface {
         isAttackPhase() && inBattlefield() && !creature.rotated && !creature.attack && !creature.isWentOnBattlefield
 
     fun canEndAttack(): Boolean = isEndAttackPhase() && inBattlefield() && creature.attack
+
+
     fun canBlockAttack(): Boolean =
         isBlockPhase() && inBattlefield() && !creature.rotated && !creature.isBlocked && thereAreBlockableCreatures()
 
@@ -38,30 +40,30 @@ interface CreatureInterface : RotateCardInterface {
         val list = mutableListOf<() -> Unit>()
 
         for (index in enemy.battlefield) {
-            val card = enemy(index)
-            if (canBlock(card))
+            val cardEnemy = enemy(index)
+            if (canBlock(cardEnemy)) {
+                println("list add $creature block $cardEnemy")
                 list.add {
                     creature.isBlocked = true
-                    blockCreature(card as Creature)
+                    blockCreature(cardEnemy.id)
                 }
+            }
         }
 
         return list
     }
 
-    fun blockCreature(enemy: Creature) {
-        enemy.hp -= creature.force
-        println("enemy cards " + this.enemy.cards)
-        println("me $creature")
-        println("enemy $enemy")
-        creature.hp -= enemy.force
+    fun blockCreature(id: Int) {
+        val enemyCreature = enemy<Creature>(id)
+        enemyCreature.hp -= creature.force
+        creature.hp -= enemyCreature.force
         if (creature.hp <= 0) {
             move(me.battlefield, me.graveyard)
             creature.reset()
         }
-        if (enemy.hp <= 0) {
-            move(this.enemy.battlefield, this.enemy.graveyard, enemy)
-            enemy.reset()
+        if (enemyCreature.hp <= 0) {
+            move(this.enemy.battlefield, this.enemy.graveyard, enemyCreature)
+            enemyCreature.reset()
         }
     }
 }

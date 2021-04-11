@@ -17,14 +17,20 @@ abstract class AbstractCard : Copied {
     abstract infix fun eq(card: Any?): Boolean
 
     infix fun notEq(card: Any?): Boolean = !eq(card)
+
+    abstract var cost: Kit<Mana>
+    abstract var tags: MutableList<Tag>
+    abstract var status: MutableSet<Status>
+    abstract var place: Place
 }
 
 @Serializable
 open class Card(override val id: Int = NextId()) : AbstractCard(), Cloneable {
 
-    var cost: Kit<Mana> = emptyKit()
-    var tags: MutableList<Tag> = mutableListOf()
-    var status: MutableSet<Status> = mutableSetOf(Status.EMPTY)
+    override var cost: Kit<Mana> = emptyKit()
+    override var tags: MutableList<Tag> = mutableListOf()
+    override var status: MutableSet<Status> = mutableSetOf(Status.EMPTY)
+    override var place: Place = Place.DECK
 
 
     fun tag(vararg tag: Tag) {

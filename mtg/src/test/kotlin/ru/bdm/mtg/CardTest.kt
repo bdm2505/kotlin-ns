@@ -80,29 +80,16 @@ class CardTest {
 
     @Test
     fun testAttackEmptyEnemyBattlefield() {
-        val creature = Creature(3,4).apply {
-            attack = true
-            rotated = false
-        }
-        val battle = Battle(ZeroPlayer("one"), ZeroPlayer("two"))
-        val state = battle.state.clone()
-        battle.apply {
-            me.apply {
-                addIn(battlefield, creature)
-            }
+        Battle(ZeroPlayer("one"), ZeroPlayer("two")).apply {
+            val creature = Creature(3, 4)
+            me.addIn(me.battlefield, creature)
             turnToEnd()
 
-        }
-
-        battle.apply {
-            me.apply {
-                assert(phase == Phase.END)
-                val cre = me(creature.id) as Creature
-                assert(cre.attack)
-            }
+            assert(me.phase == Phase.END)
+            assert(me.get(creature).attack)
+            assert(me.get(creature).rotated)
             assert(enemy.hp == me.hp - 3)
         }
-        println(state.getDifference(battle.state))
     }
     fun Battle.turnToEnd(){
         while (me.phase != Phase.END && enemy.phase != Phase.END){
@@ -146,15 +133,50 @@ class CardTest {
             assert(me.battlefield.size == 1)
             assert(me.graveyard.size == 1)
             assert((enemy.cards.values.first() as Creature).hp == 4)
+            assert(enemy.hp == me.hp - 3)
+        }
+    }
+
+    @Test
+    fun testSomeoneBlockOneAttck() {
+        Battle(ZeroPlayer("one"), ZeroPlayer("two")).apply {
+            val att = Creature(3, 10)
+            val bl1 = Creature(5, 4)
+            val bl2 = Creature(5, 4)
+            me.addIn(me.battlefield, att)
+            enemy.addIn(enemy.battlefield, bl1, bl2)
+            turnToEnd()
+            assert(me.battlefield.isEmpty())
+            assert(me.graveyard.size == 1)
+
+            assert(enemy.get(bl1).hp == 1)
+            assert(enemy.get(bl2).hp == 1)
+        }
+    }
+
+    @Test
+    fun testSomeoneBlockSomeoneAttack() {
+        Battle(ZeroPlayer("one"), ZeroPlayer("two")).apply {
+            val att1 = Creature(3, 10)
+            val att2 = Creature(3, 10)
+            val att3 = Creature(3, 10)
+            val att4 = Creature(3, 10)
+            val bl1 = Creature(5, 4)
+            val bl2 = Creature(5, 4)
+            val bl3 = Creature(5, 4)
+            me.addIn(me.battlefield, att1, att2, att3, att4)
+            enemy.addIn(enemy.battlefield, bl1, bl2, bl3)
+            turnToEnd()
         }
     }
 
     @Test
     fun testBlockCard() {
+        val cr1 = Creature(2, 4)
+        val cr2 = Creature(2, 4)
         val state = BattleState().apply {
             me.apply {
-                addIn(battlefield, Creature(2, 4))
-                addIn(battlefield, Creature(2, 4))
+                addIn(battlefield, cr1, cr2)
                 phase = Phase.BLOCK
             }
             enemy.apply {
@@ -164,10 +186,10 @@ class CardTest {
         }
         val cards = state.me.cards.values.toList()
         val states = CardExecutor().resultStates(state, cards)
-        assert((states[0].me(0) as Creature).hp == 1)
-        assert((states[0].me(1) as Creature).hp == 4)
-        assert((states[1].me(0) as Creature).hp == 4)
-        assert((states[1].me(1) as Creature).hp == 1)
+        assert(states[0].me.get(cr1).hp == 1)
+        assert(states[0].me.get(cr2).hp == 4)
+        assert(states[1].me.get(cr1).hp == 4)
+        assert(states[1].me.get(cr2).hp == 1)
     }
 
 

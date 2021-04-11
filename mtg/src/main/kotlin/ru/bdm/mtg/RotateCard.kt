@@ -11,12 +11,12 @@ interface RotateCardInterface : CardInterface {
     }
 
     fun rotate(newRotate: Boolean = true)  {
-        (card as RotateCard).rotated = newRotate
+        (abstractCard as RotateCard).rotated = newRotate
     }
 }
 
 @Serializable
-@SerialName("rotate-land")
+@SerialName("RotateCard")
 open class RotateCard() : Card() {
     var rotated: Boolean = false
     constructor(rotate: Boolean) : this(){

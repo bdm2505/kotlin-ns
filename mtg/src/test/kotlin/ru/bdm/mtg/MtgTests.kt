@@ -1,6 +1,10 @@
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import ru.bdm.mtg.*
+import ru.bdm.mtg.Land
+import ru.bdm.mtg.Mana
+import ru.bdm.mtg.StatePlayer
+import ru.bdm.mtg.cards.Creature
+import ru.bdm.mtg.toCost
 
 class MtgTests {
 
@@ -46,9 +50,16 @@ class MtgTests {
     }
 
     @Test
-    fun whenExtends(){
+    fun testCloneCreature() {
+        val cr = Creature(4, 5).apply { attack = true }
+        val cloCr = cr.copy() as Creature
+        assert(cr eq cloCr)
+    }
+
+    @Test
+    fun whenExtends() {
         val a: A = C()
-        when(a){
+        when (a) {
             is B ->
                 println("B")
             is A ->

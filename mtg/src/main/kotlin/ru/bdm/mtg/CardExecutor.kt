@@ -42,7 +42,9 @@ open class Executor : CardInterface {
     }
 
     private fun activeReactions(): List<() -> Unit> {
-        return actions.flatMap { if (it.key()) it.value() else listOf() }
+        val a = actions.flatMap { if (it.key()) it.value() else listOf() }
+        println("count reactions = ${a.size} $abstractCard")
+        return a
     }
 
     fun resultStates(battleStateNew: BattleState, cardNew: AbstractCard): List<BattleState> {
@@ -53,13 +55,17 @@ open class Executor : CardInterface {
             it()
             val res = state
             state = battleStateNew.clone()
-            state.updateCard(card.copy())
+            abstractCard = cardNew.copy()
+            state.updateCard(abstractCard)
             res
         }
     }
 
 
     fun executeAll(battleStateNew: BattleState, card: AbstractCard) {
+        state = battleStateNew
+        abstractCard = card
+        state.updateCard(card)
         for (funs in activeReactions())
             funs()
     }

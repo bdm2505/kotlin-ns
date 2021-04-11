@@ -89,12 +89,21 @@ class StatePlayer(
 
     fun activeCards(): List<AbstractCard> = (hand + battlefield + lands).map { cards[it]!! }
 
-    fun addIn(place: MutableSet<Int>, vararg cardsNew: AbstractCard) {
+    fun addIn(set: MutableSet<Int>, vararg cardsNew: AbstractCard) {
+        val place = when (set) {
+            battlefield -> Place.BATTLEFIELD
+            hand -> Place.HAND
+            lands -> Place.LANDS
+            else -> throw Exception("no correct add in $set $cardsNew")
+        }
+
         for (card in cardsNew) {
-            place += card.id
+            set += card.id
             cards[card.id] = card
+            card.place = place
         }
     }
+
 
     fun addAll(cardsNew: List<AbstractCard>, place: MutableSet<Int> = hand) {
         addIn(place, *cardsNew.toTypedArray())
@@ -109,7 +118,9 @@ class StatePlayer(
 
     operator fun invoke(index: Int): AbstractCard = cards[index]!!
 
-    fun <T> get(index: Int): T where T : AbstractCard = cards[index]!! as T
+    operator fun <T> invoke(index: Int): T = cards[index]!! as T
+
+    fun <T> get(card: T): T where T : AbstractCard = cards[card.id]!! as T
 }
 
 
