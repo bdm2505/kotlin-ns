@@ -25,6 +25,15 @@ abstract class AbstractCard : Copied {
     abstract var status: MutableSet<Status>
 
     abstract fun executor(): Executor
+    
+    abstract fun addPassiveBuff(buff : PassiveBuff)
+    
+    abstract fun removeAllPassiveBuffs()
+
+    abstract fun addActiveBuff(buff : ActiveBuff)
+    
+    abstract fun removeAllActiveBuffs()
+
 
     init {
         if (!CardExecutor.isRegistered(this::class)) {
@@ -42,7 +51,31 @@ open class Card(override val id: Int = NextId()) : AbstractCard(), Cloneable {
     final override var status: MutableSet<Status> = mutableSetOf(Status.EMPTY)
 
     override fun executor(): Executor = Executor()
-
+    
+    var passiveBuffs : MutableList<PassiveBuff> = mutableListOf()
+    
+    var activeBuffs : MutableList<ActiveBuff> = mutableListOf()
+    
+    
+    override fun addPassiveBuff(buff : PassiveBuff){
+      passiveBuffs.add(buff)
+      buff.activate(this)
+    }
+    
+    override fun removeAllPassiveBuffs(){
+      passiveBuffs.clear()
+    }
+    
+    override fun addActiveBuff(buff : ActiveBuff){
+      activeBuffs.add(buff)
+      buff.activate(this)
+    }
+    
+    override removeAllActiveBuffs(){
+      activeBuffs.clear()
+    }
+    
+    
 
     fun tag(vararg tag: Tag) {
         tags.addAll(tag)
@@ -68,7 +101,9 @@ open class Card(override val id: Int = NextId()) : AbstractCard(), Cloneable {
     }
 
     override fun endAction(state: BattleState) {
-
+      for(buff in activeBuffs){
+        buff.endAction(state, this)
+      }
     }
 
     override fun endTurn(state: BattleState) {

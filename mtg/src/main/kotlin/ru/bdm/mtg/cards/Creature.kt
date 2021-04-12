@@ -108,10 +108,16 @@ open class Creature() : RotateCard() {
 
     open fun toDamage(state: BattleState, enemy: Creature) {
         enemy.hp -= force
+        for(buff in activeBuffs){
+          buff.attackCreature(state, this, enemy)
+        }
     }
 
     open fun toDamageInFace(state: BattleState) {
         state.enemy.hp -= force
+        for(buff in activeBuffs){
+          buff.attackFace(state, this, state.enemy)
+        }
     }
 
     override fun executor(): Executor {
