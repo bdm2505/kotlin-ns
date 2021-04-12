@@ -56,7 +56,7 @@ interface CreatureInterface : RotateCardInterface {
 
     fun blockCreature(id: Int) {
         val enemyCreature = enemy<Creature>(id)
-        enemyCreature.toDamage(state, creature)
+        enemyCreature.toDamage(state.swap(), creature)
         creature.toDamage(state, enemyCreature)
         if (creature.hp <= 0) {
             move(me.battlefield, me.graveyard)
@@ -64,7 +64,7 @@ interface CreatureInterface : RotateCardInterface {
         }
         if (enemyCreature.hp <= 0) {
             move(this.enemy.battlefield, this.enemy.graveyard, enemyCreature)
-            enemyCreature.endTurn(state)
+            enemyCreature.endTurn(state.swap())
         }
     }
 }
@@ -111,6 +111,7 @@ open class Creature() : RotateCard() {
 
     open fun toDamage(state: BattleState, enemy: Creature) {
         enemy.hp -= force
+        println("creature to damage $activeBuffs")
         for(buff in activeBuffs){
           buff.attackCreature(state, this, enemy)
         }

@@ -71,8 +71,8 @@ open class Card(override val id: Int = NextId()) : AbstractCard(), Cloneable {
       buff.activate(this)
     }
     
-    override removeAllActiveBuffs(){
-      activeBuffs.clear()
+    override fun removeAllActiveBuffs() {
+        activeBuffs.clear()
     }
     
     

@@ -1,61 +1,49 @@
 package ru.bdm.mtg
 
 import kotlinx.serialization.Serializable
+import ru.bdm.mtg.cards.Creature
 
 @Serializable
-abstract class Buff{
- 
+abstract class Buff {
+
+  override fun toString(): String {
+    return this::class.simpleName!!
+  }
 }
 
-class PassiveBuff : Buff(){
-  
+@Serializable
+open class PassiveBuff : Buff() {
+
   open fun activate(card: AbstractCard) {}
-  
-  open fun deactivate(card : AbstractCard) {}
-  
+
+  open fun deactivate(card: AbstractCard) {}
+
 }
 
-class ActiveBuff : PassiveBuff(){
-  open fun attackCreature(state : BattleState, me: Creature, enemy : Creature){}
-  
-  open fun attackFace(state: BattleState, me: Creature, enemy: StatePlayer){}
-  
-  open fun endAction(state BattleState, card: AbstractCard){}
+@Serializable
+open class ActiveBuff : PassiveBuff() {
+  open fun attackCreature(state: BattleState, me: Creature, enemy: Creature) {}
+
+  open fun attackFace(state: BattleState, me: Creature, enemy: StatePlayer) {}
+
+  open fun endAction(state: BattleState, card: AbstractCard) {}
 }
 
-object ChainOfLife : ActiveBuff(){
-  override fun attackCreature(state : BattleState, me: Creature, enemy : Creature){
+@Serializable
+object LifeLink : ActiveBuff() {
+  override fun attackCreature(state: BattleState, me: Creature, enemy: Creature) {
+    state.me.hp += me.force
+    println("chain of life attack $state")
+  }
+
+  override fun attackFace(state: BattleState, me: Creature, enemy: StatePlayer) {
     state.me.hp += me.force
   }
-  override fun attackFace(state: BattleState, me: Creature, enemy: StatePlayer){
-    state.me.hp += me.force
-  }
-}
-object Deathtouch : ActiveBuff(){
-  override fun attackCreature(state : BattleState, me: Creature, enemy : Creature){
-      enemy.hp = 0
-    }
 }
 
-class AbstractToken(val addForce : Int, val addHp : Int) : PassiveBuff(){
-  
-  override fun activate(card : AbstractCard){
-    card as Creature
-    card.apply{
-      force += addForce
-      hp += addHp
-      maxHp += addHp
-    }
-  }
-  
-  override fun deactivate(card : AbstractCard){
-    card as Creature
-    card.apply{
-      force -= addForce
-      maxHp -= addHp
-      if(hp > maxHp) hp = maxHp
-    }
+@Serializable
+object DeathTouch : ActiveBuff() {
+  override fun attackCreature(state: BattleState, me: Creature, enemy: Creature) {
+    enemy.hp = 0
   }
 }
-
-object Token : AbstractToken(1, 1)

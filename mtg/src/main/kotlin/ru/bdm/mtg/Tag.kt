@@ -6,4 +6,5 @@ enum class Tag {
     HUMAN,
     CLERIC,
     DOG,
+    INSTANT,
 }

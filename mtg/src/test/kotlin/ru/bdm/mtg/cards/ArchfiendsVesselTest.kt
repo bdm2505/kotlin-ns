@@ -3,6 +3,7 @@ package ru.bdm.mtg.cards
 import org.junit.jupiter.api.Test
 import ru.bdm.mtg.Battle
 import ru.bdm.mtg.Place
+import ru.bdm.mtg.turnToEnd
 
 internal class ArchfiendsVesselTest {
 
@@ -25,16 +26,14 @@ internal class ArchfiendsVesselTest {
     @Test
     fun testAddLife(){
       Battle().apply {
-        val arch = ArchfiendsVessel()
-        me.add(Place.BATTLEFIELD, arch)
-        enemy.add(Place.BATTLEFIELD, Creature(3,3))
-        val hp = me.hp
-        nextTurn()
-        nextTurn()
-        nextTurn()
-        nextTurn()
-        assert(me.hp == hp + 1)
-        assert(me.graveyard.size() == 1)
+          val arch = ArchfiendsVessel()
+          me.add(Place.BATTLEFIELD, arch)
+          enemy.add(Place.BATTLEFIELD, Creature(3, 3))
+          val hp = me.hp
+          println("hp = $hp")
+          turnToEnd()
+          assert(me.hp == (hp + 1))
+          assert(me.graveyard.size == 1)
         
       }
     }

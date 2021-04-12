@@ -1,6 +1,9 @@
 package ru.bdm.mtg.cards
 
 import org.junit.jupiter.api.Test
+import ru.bdm.mtg.Battle
+import ru.bdm.mtg.Place
+import ru.bdm.mtg.turnToEnd
 
 class AlpineWatchdogTest{
 
@@ -9,15 +12,15 @@ class AlpineWatchdogTest{
     Battle().apply{
       val alp = AlpineWatchdog()
       me.add(Place.BATTLEFIELD, alp)
-      nextTurn()
-      nextTurn()
-      
-      assert(me.get(alp).attack)
-      assert(!me.get(alp).rotate)
       val hp = enemy.hp
-      
       nextTurn()
       nextTurn()
+
+
+      assert(me.get(alp).attack)
+      assert(!me.get(alp).rotated)
+
+      turnToEnd()
       assert(enemy.hp == hp - alp.force)
     }
   }

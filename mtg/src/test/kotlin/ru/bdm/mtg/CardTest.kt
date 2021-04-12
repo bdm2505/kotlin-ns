@@ -94,13 +94,7 @@ class CardTest {
             assert(enemy.hp == me.hp - 3)
         }
     }
-    fun Battle.turnToEnd(){
-        while (me.phase != Phase.END && enemy.phase != Phase.END){
-            println(state)
-            nextTurn()
-        }
-        println(state)
-    }
+
 
     @Test
     fun testBlockOneAttack(){
@@ -253,6 +247,14 @@ class CardTest {
             }
         }
     }
+}
+
+fun Battle.turnToEnd() {
+    while (me.phase != Phase.END && enemy.phase != Phase.END) {
+        println(state)
+        nextTurn()
+    }
+    println(state)
 }
     
     
