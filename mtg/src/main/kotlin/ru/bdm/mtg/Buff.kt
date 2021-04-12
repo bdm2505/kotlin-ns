@@ -30,7 +30,11 @@ object ChainOfLife : ActiveBuff(){
   override fun attackFace(state: BattleState, me: Creature, enemy: StatePlayer){
     state.me.hp += me.force
   }
-  
+}
+object Deathtouch : ActiveBuff(){
+  override fun attackCreature(state : BattleState, me: Creature, enemy : Creature){
+      enemy.hp = 0
+    }
 }
 
 class AbstractToken(val addForce : Int, val addHp : Int) : PassiveBuff(){

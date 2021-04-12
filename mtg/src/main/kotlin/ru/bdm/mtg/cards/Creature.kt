@@ -49,6 +49,10 @@ interface CreatureInterface : RotateCardInterface {
 
         return list
     }
+    fun attacked(){
+      creature.attack = true
+      rotate()
+    }
 
     fun blockCreature(id: Int) {
         val enemyCreature = enemy<Creature>(id)
@@ -69,8 +73,7 @@ open class CreatureExecutor : Executor(), CreatureInterface {
 
     init {
         one(this::canAttack) {
-            creature.attack = true
-            rotate()
+            attacked()
         }
         one(this::canPlay) {
             play()

@@ -4,5 +4,6 @@ enum class Tag {
     CREATURE,
     ELEMENTAL,
     HUMAN,
-    CLERIC
+    CLERIC,
+    DOG,
 }
