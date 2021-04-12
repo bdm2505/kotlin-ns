@@ -1,7 +1,7 @@
 package ru.bdm.mtg
 
 import kotlinx.serialization.Serializable
-import ru.bdm.mtg.cards.Creature
+import ru.bdm.mtg.cards.creatures.Creature
 
 @Serializable
 abstract class Buff {

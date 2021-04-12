@@ -7,4 +7,7 @@ enum class Tag {
     CLERIC,
     DOG,
     INSTANT,
+    WARRIOR,
+    SPIRIT,
+    KOR,
 }

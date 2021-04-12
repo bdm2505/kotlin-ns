@@ -1,8 +1,9 @@
-package ru.bdm.mtg.cards
+package ru.bdm.mtg.cards.creatures
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import ru.bdm.mtg.*
+import ru.bdm.mtg.cards.chips.BlackDaemon
 
 
 @Serializable

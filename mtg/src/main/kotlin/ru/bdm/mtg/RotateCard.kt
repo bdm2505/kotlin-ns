@@ -5,10 +5,6 @@ import kotlinx.serialization.Serializable
 
 
 interface RotateCardInterface : CardInterface {
-    fun play() {
-        move()
-        spendMana()
-    }
 
     fun rotate(newRotate: Boolean = true)  {
         (abstractCard as RotateCard).rotated = newRotate

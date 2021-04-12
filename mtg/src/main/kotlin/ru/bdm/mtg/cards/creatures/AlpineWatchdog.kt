@@ -1,10 +1,10 @@
-package ru.bdm.mtg.cards
+package ru.bdm.mtg.cards.creatures
 
 import ru.bdm.mtg.Tag
 import ru.bdm.mtg.toMana
 
 interface VigilanceInterface : CreatureInterface {
-  override fun attacked() {
+  override fun attacked() = listOf {
     creature.attack = true
   }
 }

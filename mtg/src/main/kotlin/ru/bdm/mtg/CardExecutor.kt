@@ -38,7 +38,7 @@ open class Executor : CardInterface {
     override lateinit var abstractCard: AbstractCard
     override lateinit var state: BattleState
 
-    private val actions: MutableMap<() -> Boolean, () -> List<() -> Unit>> = mutableMapOf()
+    val actions: MutableMap<() -> Boolean, () -> List<() -> Unit>> = mutableMapOf()
 
     fun one(cond: () -> Boolean, react: () -> Unit) {
         actions[cond] = { listOf(react) }

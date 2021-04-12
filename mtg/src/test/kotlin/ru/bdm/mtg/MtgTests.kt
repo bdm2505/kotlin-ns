@@ -3,7 +3,7 @@ import org.junit.jupiter.api.Test
 import ru.bdm.mtg.Mana
 import ru.bdm.mtg.Place
 import ru.bdm.mtg.StatePlayer
-import ru.bdm.mtg.cards.Creature
+import ru.bdm.mtg.cards.creatures.Creature
 import ru.bdm.mtg.cards.lands.Land
 import ru.bdm.mtg.toMana
 

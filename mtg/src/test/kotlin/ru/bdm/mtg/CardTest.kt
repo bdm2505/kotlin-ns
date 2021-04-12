@@ -4,7 +4,7 @@ import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestFactory
 import ru.bdm.mtg.cards.CardSerializer
-import ru.bdm.mtg.cards.Creature
+import ru.bdm.mtg.cards.creatures.Creature
 import ru.bdm.mtg.cards.lands.*
 
 class CardTest {
@@ -238,7 +238,7 @@ class CardTest {
             DynamicTest.dynamicTest("test play ${it.name}") {
                 Battle().apply {
                     me.add(Place.HAND, it)
-                    me.mana += it.cost
+                    me.mana.addAll(it.cost)
 
                     nextTurn()
                     assert(me.hand.isEmpty())

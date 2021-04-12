@@ -1,4 +1,4 @@
-package ru.bdm.mtg.cards
+package ru.bdm.mtg.cards.creatures
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -49,43 +49,59 @@ interface CreatureInterface : RotateCardInterface {
 
         return list
     }
-    fun attacked(){
-      creature.attack = true
-      rotate()
+
+    fun attacked(): List<() -> Unit> = listOf {
+        creature.attack = true
+        rotate()
     }
 
     fun blockCreature(id: Int) {
         val enemyCreature = enemy<Creature>(id)
-        enemyCreature.toDamage(state.swap(), creature)
+        val stateSwap = state.swap()
+        enemyCreature.toDamage(stateSwap, creature)
         creature.toDamage(state, enemyCreature)
         if (creature.hp <= 0) {
             move(me.battlefield, me.graveyard)
             creature.endTurn(state)
+            creature.removedFromBattlefield(state)
         }
         if (enemyCreature.hp <= 0) {
             move(this.enemy.battlefield, this.enemy.graveyard, enemyCreature)
-            enemyCreature.endTurn(state.swap())
+            enemyCreature.endTurn(stateSwap)
+            enemyCreature.removedFromBattlefield(stateSwap)
         }
     }
+
+    fun play(): List<() -> Unit> = listOf {
+        println("super play()")
+        move()
+        spendMana()
+        creature.isWentOnBattlefield = true
+    }
+
+    fun endAttacked() {
+        creature.toDamageInFace(state)
+    }
+
 }
 
 open class CreatureExecutor : Executor(), CreatureInterface {
 
     init {
-        one(this::canAttack) {
+        any(this::canAttack) {
             attacked()
         }
-        one(this::canPlay) {
+        any(this::canPlay) {
             play()
-            creature.isWentOnBattlefield = true
         }
         one(this::canEndAttack) {
-            creature.toDamageInFace(state)
+            endAttacked()
         }
 
         any(this::canBlockAttack) {
             blockingReactions()
         }
+        println("creature init size = ${actions.size}")
     }
 }
 
@@ -105,6 +121,8 @@ open class Creature() : RotateCard() {
         this.maxHp = hp
     }
 
+    open fun removedFromBattlefield(state: BattleState) {}
+
     init {
         tag(Tag.CREATURE)
     }
@@ -112,8 +130,8 @@ open class Creature() : RotateCard() {
     open fun toDamage(state: BattleState, enemy: Creature) {
         enemy.hp -= force
         println("creature to damage $activeBuffs")
-        for(buff in activeBuffs){
-          buff.attackCreature(state, this, enemy)
+        for (buff in activeBuffs) {
+            buff.attackCreature(state, this, enemy)
         }
     }
 

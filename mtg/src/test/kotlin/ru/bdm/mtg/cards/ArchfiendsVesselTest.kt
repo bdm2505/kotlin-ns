@@ -3,6 +3,9 @@ package ru.bdm.mtg.cards
 import org.junit.jupiter.api.Test
 import ru.bdm.mtg.Battle
 import ru.bdm.mtg.Place
+import ru.bdm.mtg.cards.chips.BlackDaemon
+import ru.bdm.mtg.cards.creatures.ArchfiendsVessel
+import ru.bdm.mtg.cards.creatures.Creature
 import ru.bdm.mtg.turnToEnd
 
 internal class ArchfiendsVesselTest {

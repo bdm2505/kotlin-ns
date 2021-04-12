@@ -1,10 +1,9 @@
-package ru.bdm.mtg.cards
+package ru.bdm.mtg.cards.chips
 
 import ru.bdm.mtg.Status
+import ru.bdm.mtg.cards.creatures.Creature
 
 class BlackDaemon : Creature(5, 5) {
-
-    override fun executor() = CreatureExecutor()
 
     init {
         status.add(Status.FLYING)

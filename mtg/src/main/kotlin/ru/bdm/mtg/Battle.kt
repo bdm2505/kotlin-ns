@@ -1,6 +1,6 @@
 package ru.bdm.mtg
 
-import ru.bdm.mtg.cards.Creature
+import ru.bdm.mtg.cards.creatures.Creature
 
 
 class Battle(val player: Player = ZeroPlayer("zero1"), val enemyPlayer: Player = ZeroPlayer("zero2")) {
@@ -37,7 +37,7 @@ class Battle(val player: Player = ZeroPlayer("zero1"), val enemyPlayer: Player =
 
     fun isEnd(): Boolean = me.hp <= 0 || enemy.hp <= 0 || me.deck.isEmpty() || enemy.deck.isEmpty()
 
-    private fun nextStates(cards: List<AbstractCard>): List<BattleState> {
+    fun nextStates(cards: List<AbstractCard>): List<BattleState> {
         return CardExecutor.resultStates(state, cards.toList())
     }
 }

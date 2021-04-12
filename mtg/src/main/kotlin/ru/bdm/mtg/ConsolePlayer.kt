@@ -1,6 +1,6 @@
 package ru.bdm.mtg
 
-import ru.bdm.mtg.cards.Creature
+import ru.bdm.mtg.cards.creatures.Creature
 
 open class ConsolePlayer(name: String) : Player(name){
 

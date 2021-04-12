@@ -4,7 +4,11 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
-import ru.bdm.mtg.*
+import ru.bdm.mtg.AbstractCard
+import ru.bdm.mtg.BattleState
+import ru.bdm.mtg.Card
+import ru.bdm.mtg.RotateCard
+import ru.bdm.mtg.cards.creatures.Creature
 import ru.bdm.mtg.cards.lands.Land
 
 

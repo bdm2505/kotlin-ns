@@ -24,18 +24,19 @@ interface CardInterface {
 
     fun canPlay() = inHand() && enoughMana() && (isStartPhase() || isEndPhase())
 
-    fun enoughMana(player: StatePlayer = me): Boolean {
-        for (mana in card.cost) {
-            if (mana.key != Mana.NEUTRAL &&
+    fun enoughMana(cost: Kit<Mana> = card.cost, player: StatePlayer = me): Boolean {
+        for (mana in cost) {
+            if (
+                mana.key != Mana.NEUTRAL &&
                 (!player.mana.containsKey(mana.key) || player.mana[mana.key]!! < mana.value)
             )
                 return false
         }
-        return card.cost.count() <= player.mana.count()
+        return cost.count() <= player.mana.count()
     }
 
     fun addMana(color: Mana) {
-        me.mana.plus(color)
+        me.mana.add(color)
     }
 
     fun move(start: MutableSet<Int> = me.hand, end: MutableSet<Int> = me.battlefield, movedCard: Card = card) {
@@ -52,9 +53,9 @@ interface CardInterface {
         }
     }
 
-    fun spendMana(player: StatePlayer = me) {
-
-        for (m in card.cost) {
+    fun spendMana(cost: Kit<Mana> = card.cost, player: StatePlayer = me) {
+        println("spend mana ${me.mana} - $cost ")
+        for (m in cost) {
             player.mana[m.key]?.let {
                 if (it > m.value)
                     player.mana[m.key] = it - m.value
@@ -62,7 +63,7 @@ interface CardInterface {
                     player.mana.remove(m.key)
             }
         }
-        card.cost[Mana.NEUTRAL]?.let {
+        cost[Mana.NEUTRAL]?.let {
             var count = it
             for (m in player.mana) {
                 if (m.value > count) {
@@ -79,6 +80,7 @@ interface CardInterface {
                 }
             }
         }
+        println("end spend mana ${me.mana}")
     }
 
 }

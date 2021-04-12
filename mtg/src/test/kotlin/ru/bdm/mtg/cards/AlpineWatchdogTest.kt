@@ -3,6 +3,7 @@ package ru.bdm.mtg.cards
 import org.junit.jupiter.api.Test
 import ru.bdm.mtg.Battle
 import ru.bdm.mtg.Place
+import ru.bdm.mtg.cards.creatures.AlpineWatchdog
 import ru.bdm.mtg.turnToEnd
 
 class AlpineWatchdogTest{
