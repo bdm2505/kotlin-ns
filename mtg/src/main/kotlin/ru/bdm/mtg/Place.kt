@@ -5,5 +5,6 @@ enum class Place {
     BATTLEFIELD,
     GRAVEYARD,
     DECK,
+    EXILE,
     LANDS;
 }

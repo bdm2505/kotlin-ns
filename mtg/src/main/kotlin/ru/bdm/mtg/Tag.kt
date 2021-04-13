@@ -10,4 +10,6 @@ enum class Tag {
     WARRIOR,
     SPIRIT,
     KOR,
+    PEASANT,
+    ADVENTURE,
 }

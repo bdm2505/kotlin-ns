@@ -1,5 +1,7 @@
 package ru.bdm.mtg.cards.creatures
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import ru.bdm.mtg.BattleState
 import ru.bdm.mtg.Executor
 import ru.bdm.mtg.Tag
@@ -8,11 +10,12 @@ import ru.bdm.mtg.toMana
 interface SeasonedHallowbladeInterface : CreatureInterface {
     val seas get() = abstractCard as SeasonedHallowblade
 
-    fun canRotate() = isActivePhase() && inBattlefield() && me.hand.size >= 1
+    fun canRotate() = isActivePhase() && inBattlefield() && !seas.rotated && !seas.indestructible && me.hand.size >= 1
     fun rotateAndActive() = me.hand.map {
         {
             move(me.hand, me.graveyard, it)
             seas.indestructible = true
+            rotate()
         }
     }
 }
@@ -27,13 +30,15 @@ class SeasonedHallowbladeExecutor : CreatureExecutor(), SeasonedHallowbladeInter
 
 }
 
+@Serializable
+@SerialName("SeasonedHallowblade")
 class SeasonedHallowblade(var indestructible: Boolean = false) : Creature(3, 1) {
 
-    override var hp: Int = 1
-        set(value) {
-            if (!indestructible)
-                field = value
-        }
+
+    override fun minusHp(damage: Int) {
+        if (!indestructible)
+            super.minusHp(damage)
+    }
 
     init {
         cost = "CW".toMana()

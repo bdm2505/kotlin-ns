@@ -12,6 +12,7 @@ class StatePlayer(
     val battlefield: MutableSet<Int> = mutableSetOf(),
     val graveyard: MutableList<Int> = mutableListOf(),
     val deck: MutableList<Int> = mutableListOf(),
+    val exile: MutableSet<Int> = mutableSetOf(),
     var numberCourse: Int = 0,
     var isLandPlayable: Boolean = false,
     var hp: Int = 20,
@@ -26,6 +27,7 @@ class StatePlayer(
             battlefield.toMutableSet(),
             graveyard.toMutableList(),
             deck.toMutableList(),
+            exile.toMutableSet(),
             numberCourse,
             isLandPlayable,
             hp
@@ -99,12 +101,16 @@ class StatePlayer(
         Place.DECK -> deck
         Place.LANDS -> lands
         Place.GRAVEYARD -> graveyard
+        Place.EXILE -> exile
     }
 
-    fun place(set: MutableSet<Int>) = when (set) {
+    fun place(set: MutableCollection<Int>) = when (set) {
         battlefield -> Place.BATTLEFIELD
         hand -> Place.HAND
         lands -> Place.LANDS
+        deck -> Place.DECK
+        graveyard -> Place.GRAVEYARD
+        exile -> Place.EXILE
         else -> throw Exception("no correct get Place in $set ")
     }
 

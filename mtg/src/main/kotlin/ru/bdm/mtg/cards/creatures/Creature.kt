@@ -73,7 +73,6 @@ interface CreatureInterface : RotateCardInterface {
     }
 
     fun play(): List<() -> Unit> = listOf {
-        println("super play()")
         move()
         spendMana()
         creature.isWentOnBattlefield = true
@@ -127,17 +126,21 @@ open class Creature() : RotateCard() {
     }
 
     open fun toDamage(state: BattleState, enemy: Creature) {
-        enemy.hp -= force
-        println("creature to damage $activeBuffs")
+        enemy minusHp force
+        println("creature to damage $enemy - $force $activeBuffs")
         for (buff in activeBuffs) {
             buff.attackCreature(state, this, enemy)
         }
     }
 
+    open infix fun minusHp(damage: Int) {
+        hp -= damage
+    }
+
     open fun toDamageInFace(state: BattleState) {
         state.enemy.hp -= force
-        for(buff in activeBuffs){
-          buff.attackFace(state, this, state.enemy)
+        for (buff in activeBuffs) {
+            buff.attackFace(state, this, state.enemy)
         }
     }
 

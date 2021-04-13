@@ -21,6 +21,8 @@ interface CardInterface {
     fun inHand(player: StatePlayer = me): Boolean = player.hand.contains(card.id)
     fun inLands(player: StatePlayer = me): Boolean = player.lands.contains(card.id)
     fun inBattlefield(player: StatePlayer = me): Boolean = player.battlefield.contains(card.id)
+    fun inExile(player: StatePlayer = me): Boolean = player.exile.contains(card.id)
+    fun inGraveyard(player: StatePlayer = me): Boolean = player.graveyard.contains(card.id)
 
     fun canPlay() = inHand() && enoughMana() && (isStartPhase() || isEndPhase())
 

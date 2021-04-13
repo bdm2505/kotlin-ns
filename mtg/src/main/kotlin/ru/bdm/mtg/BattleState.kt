@@ -2,6 +2,7 @@ package ru.bdm.mtg
 
 import kotlinx.serialization.Serializable
 import ru.bdm.mtg.Phase.*
+import kotlin.reflect.KClass
 
 @Serializable
 data class BattleState(var phase: Phase, val me: StatePlayer = StatePlayer(), val enemy: StatePlayer = StatePlayer()) {
@@ -13,8 +14,7 @@ data class BattleState(var phase: Phase, val me: StatePlayer = StatePlayer(), va
 
     fun swap(): BattleState = BattleState(phase, enemy, me)
     fun nextTurn(): BattleState {
-        print("next turn $phase")
-        val re = when (phase) {
+        return when (phase) {
             START -> nextBattleState().swap()
             BLOCK -> nextBattleState().swap()
             END_ATTACK -> nextBattleState()
@@ -25,13 +25,11 @@ data class BattleState(var phase: Phase, val me: StatePlayer = StatePlayer(), va
                         numberCourse += 1
                         isLandPlayable = false
                     }
-                    this.endTurn()
-                    this.startTurn()
+                    endTurn()
+                    startTurn()
                 }
             }
         }
-        println(" -> ${re.phase}")
-        return re
     }
 
     fun takeCardFromDeck() {
@@ -53,6 +51,19 @@ data class BattleState(var phase: Phase, val me: StatePlayer = StatePlayer(), va
     }
 
     fun clone(): BattleState = BattleState(phase, me.copy(), enemy.copy())
+
+    fun <T> find(id: Int): T? where T : AbstractCard =
+        when {
+            me.cards.containsKey(id) -> me.cards[id]!! as T
+            enemy.cards.containsKey(id) -> enemy.cards[id]!! as T
+            else -> null
+        }
+
+    fun <T> find(cl: KClass<T>, id: Int): T? where T : AbstractCard = when {
+        me.cards.containsKey(id) -> me.cards[id]!!.let { if (cl.isInstance(it)) (it as T) else null }
+        enemy.cards.containsKey(id) -> enemy.cards[id]!!.let { if (cl.isInstance(it)) (it as T) else null }
+        else -> null
+    }
 }
 
 fun BattleState.endTurn() {
