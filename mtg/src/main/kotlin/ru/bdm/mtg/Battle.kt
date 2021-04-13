@@ -6,7 +6,7 @@ import ru.bdm.mtg.cards.creatures.Creature
 class Battle(val player: Player = ZeroPlayer("zero1"), val enemyPlayer: Player = ZeroPlayer("zero2")) {
 
 
-    var state: BattleState = BattleState(StatePlayer(player.name), StatePlayer(enemyPlayer.name))
+    var state: BattleState = BattleState(Phase.START, StatePlayer(player.name), StatePlayer(enemyPlayer.name))
     val me: StatePlayer
         get() = state.me
     val enemy: StatePlayer
@@ -18,11 +18,12 @@ class Battle(val player: Player = ZeroPlayer("zero1"), val enemyPlayer: Player =
 
     fun nextTurn() {
         state = turn(if (player.name == me.name) player else enemyPlayer)
+        println("battle next turn $state")
     }
 
     private fun turn(player: Player): BattleState {
 
-        if (me.phase == Phase.END_ATTACK) {
+        if (state.phase == Phase.END_ATTACK) {
             return executeAllCards().nextTurn()
         }
         val states = nextStates(me.activeCards()) + state.clone().endAction().nextTurn()

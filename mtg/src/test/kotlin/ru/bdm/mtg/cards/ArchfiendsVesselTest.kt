@@ -16,9 +16,14 @@ internal class ArchfiendsVesselTest {
             val arch = ArchfiendsVessel()
             me.add(Place.GRAVEYARD, arch)
             nextTurn()
+            nextTurn()
+            nextTurn()
             me.graveyard -= arch.id
             me.battlefield += arch.id
             nextTurn()
+            state = state.swap()
+
+
             println(state)
             me.apply {
                 assert(me.battlefield.size == 1)

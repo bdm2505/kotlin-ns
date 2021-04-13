@@ -55,8 +55,8 @@ interface CreatureInterface : RotateCardInterface {
         rotate()
     }
 
-    fun blockCreature(id: Int) {
-        val enemyCreature = enemy<Creature>(id)
+    fun blockCreature(enemyId: Int) {
+        val enemyCreature = enemy<Creature>(enemyId)
         val stateSwap = state.swap()
         enemyCreature.toDamage(stateSwap, creature)
         creature.toDamage(state, enemyCreature)
@@ -66,7 +66,7 @@ interface CreatureInterface : RotateCardInterface {
             creature.removedFromBattlefield(state)
         }
         if (enemyCreature.hp <= 0) {
-            move(this.enemy.battlefield, this.enemy.graveyard, enemyCreature)
+            move(this.enemy.battlefield, this.enemy.graveyard, enemyId)
             enemyCreature.endTurn(stateSwap)
             enemyCreature.removedFromBattlefield(stateSwap)
         }
@@ -101,7 +101,6 @@ open class CreatureExecutor : Executor(), CreatureInterface {
         any(this::canBlockAttack) {
             blockingReactions()
         }
-        println("creature init size = ${actions.size}")
     }
 }
 

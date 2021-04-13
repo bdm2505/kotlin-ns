@@ -15,7 +15,7 @@ class AlpineWatchdogTest{
       me.add(Place.BATTLEFIELD, alp)
       val hp = enemy.hp
       nextTurn()
-      nextTurn()
+
 
 
       assert(me.get(alp).attack)

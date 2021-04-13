@@ -50,7 +50,6 @@ class CardTest {
         val creature = Creature(2,3)
         val battle = Battle(ZeroPlayer("one"), ZeroPlayer("two")).apply {
             me.add(Place.BATTLEFIELD, creature.copy())
-            me.phase = Phase.ATTACK
         }
         battle.apply {
             nextTurn()
@@ -66,13 +65,13 @@ class CardTest {
 
             add(Place.BATTLEFIELD, creature2)
             battlefield -= creature.id
-            phase = Phase.ATTACK
         }
 
         battle.apply {
             nextTurn()
+            assert(state.phase == Phase.BLOCK)
             state = state.swap()
-            println(me)
+            println(state)
             val cr = me(creature2.id) as Creature
             println(cr)
             assert(!cr.attack)
@@ -88,7 +87,7 @@ class CardTest {
             me.add(Place.BATTLEFIELD, creature)
             turnToEnd()
 
-            assert(me.phase == Phase.END)
+            assert(state.phase == Phase.END)
             assert(me.get(creature).attack)
             assert(me.get(creature).rotated)
             assert(enemy.hp == me.hp - 3)
@@ -169,7 +168,7 @@ class CardTest {
     fun testBlockCard() {
         val cr1 = Creature(2, 4)
         val cr2 = Creature(2, 4)
-        val state = BattleState().apply {
+        val state = BattleState(Phase.START).apply {
             me.apply {
                 add(Place.BATTLEFIELD, cr1, cr2)
                 phase = Phase.BLOCK
@@ -191,7 +190,7 @@ class CardTest {
 
     @Test
     fun toJson() {
-        val state = BattleState().apply {
+        val state = BattleState(Phase.START).apply {
             me.apply {
                 hp = 90
                 add(Place.HAND, Creature(2, 4))
@@ -250,7 +249,7 @@ class CardTest {
 }
 
 fun Battle.turnToEnd() {
-    while (me.phase != Phase.END && enemy.phase != Phase.END) {
+    while (state.phase != Phase.END) {
         println(state)
         nextTurn()
     }
