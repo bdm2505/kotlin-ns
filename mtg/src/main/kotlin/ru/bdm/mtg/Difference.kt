@@ -7,12 +7,11 @@ data class Difference(
     val name: String,
     val numberCourse: Int?,
     val isLandPlayable: Boolean?,
-    val phase: Phase?
 ) {
     override fun toString(): String {
 
         return "${hp?.let { "${it}hp" } ?: ""}(" +
-                " $name '${mana ?: ""}')" + (phase?.name ?: "") +
+                " $name '${mana ?: ""}')" +
                 " $changes" +
                 (numberCourse?.let { " numberCourse=$it," } ?: "") +
                 (isLandPlayable?.let { " isLandPlayable=$it" } ?: "")

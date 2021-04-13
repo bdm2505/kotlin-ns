@@ -12,11 +12,11 @@ interface CardInterface {
     val enemy: StatePlayer
         get() = state.enemy
 
-    fun isStartPhase(player: StatePlayer = me): Boolean = player.phase == Phase.START
-    fun isAttackPhase(player: StatePlayer = me): Boolean = player.phase == Phase.ATTACK
-    fun isBlockPhase(player: StatePlayer = me): Boolean = player.phase == Phase.BLOCK
-    fun isEndAttackPhase(player: StatePlayer = me): Boolean = player.phase == Phase.END_ATTACK
-    fun isEndPhase(player: StatePlayer = me): Boolean = player.phase == Phase.END
+    fun isStartPhase(): Boolean = state.phase == Phase.START
+    fun isBlockPhase(): Boolean = state.phase == Phase.BLOCK
+    fun isEndAttackPhase(): Boolean = state.phase == Phase.END_ATTACK
+    fun isEndPhase(): Boolean = state.phase == Phase.END
+    fun isActivePhase(): Boolean = isStartPhase() || isEndPhase()
 
     fun inHand(player: StatePlayer = me): Boolean = player.hand.contains(card.id)
     fun inLands(player: StatePlayer = me): Boolean = player.lands.contains(card.id)
@@ -39,19 +39,15 @@ interface CardInterface {
         me.mana.add(color)
     }
 
-    fun move(start: MutableSet<Int> = me.hand, end: MutableSet<Int> = me.battlefield, movedCard: Card = card) {
-        start -= movedCard.id
-        end += movedCard.id
+    fun move(
+        start: MutableCollection<Int> = me.hand,
+        end: MutableCollection<Int> = me.battlefield,
+        movedCard: Int = card.id
+    ) {
+        start -= movedCard
+        end += movedCard
     }
 
-    fun move(start: MutableSet<Int>, end: MutableList<Int>, movedCard: Card = card) {
-        if (start.contains(movedCard.id)) {
-            start.remove(movedCard.id)
-            end.add(movedCard.id)
-        } else {
-            System.err.println("error move $movedCard from $start to $end   $state")
-        }
-    }
 
     fun spendMana(cost: Kit<Mana> = card.cost, player: StatePlayer = me) {
         println("spend mana ${me.mana} - $cost ")
@@ -82,6 +78,7 @@ interface CardInterface {
         }
         println("end spend mana ${me.mana}")
     }
+
 
 }
 

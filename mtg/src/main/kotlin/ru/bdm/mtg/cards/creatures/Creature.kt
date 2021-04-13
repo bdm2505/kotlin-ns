@@ -10,7 +10,7 @@ interface CreatureInterface : RotateCardInterface {
 
 
     fun canAttack(): Boolean =
-        isAttackPhase() && inBattlefield() && !creature.rotated && !creature.attack && !creature.isWentOnBattlefield
+        isStartPhase() && inBattlefield() && !creature.rotated && !creature.attack && !creature.isWentOnBattlefield
 
     fun canEndAttack(): Boolean = isEndAttackPhase() && inBattlefield() && creature.attack
 
@@ -109,7 +109,7 @@ open class CreatureExecutor : Executor(), CreatureInterface {
 @SerialName("creature")
 open class Creature() : RotateCard() {
     var force: Int = 0
-    var hp: Int = 0
+    open var hp: Int = 0
     var maxHp: Int = hp
     var attack: Boolean = false
     var isBlocked: Boolean = false

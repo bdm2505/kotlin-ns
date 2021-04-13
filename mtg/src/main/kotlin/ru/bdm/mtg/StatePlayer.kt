@@ -14,7 +14,6 @@ class StatePlayer(
     val deck: MutableList<Int> = mutableListOf(),
     var numberCourse: Int = 0,
     var isLandPlayable: Boolean = false,
-    var phase: Phase = Phase.START,
     var hp: Int = 20,
 ) : Copied {
     override fun copy(): StatePlayer {
@@ -29,7 +28,6 @@ class StatePlayer(
             deck.toMutableList(),
             numberCourse,
             isLandPlayable,
-            phase,
             hp
         )
     }
@@ -43,7 +41,6 @@ class StatePlayer(
                 "$name->${next.name}",
                 if (numberCourse != next.numberCourse) next.numberCourse else null,
                 null,
-                if (phase == next.phase) null else next.phase
             )
         else {
             val list = mutableListOf<Pair<AbstractCard, String>>()
@@ -72,14 +69,13 @@ class StatePlayer(
                 name,
                 if (numberCourse != next.numberCourse) next.numberCourse else null,
                 if (isLandPlayable != next.isLandPlayable) next.isLandPlayable else null,
-                if (phase == next.phase) null else next.phase
             )
         }
     }
 
 
     override fun toString(): String {
-        return "$name (${hp}hp $phase mana=${mana.string()}, cards=$cards, hand=$hand, lands=$lands, battlefield=$battlefield, numberCourse=$numberCourse, isLandPlayable=$isLandPlayable, graveyard=$graveyard, deck=$deck)"
+        return "$name (${hp}hp mana=${mana.string()}, cards=$cards, hand=$hand, lands=$lands, battlefield=$battlefield, numberCourse=$numberCourse, isLandPlayable=$isLandPlayable, graveyard=$graveyard, deck=$deck)"
     }
 
     fun updateCard(card: AbstractCard) {

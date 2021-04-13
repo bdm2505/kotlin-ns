@@ -4,18 +4,14 @@ import kotlinx.serialization.Serializable
 import ru.bdm.mtg.Phase.*
 
 @Serializable
-data class BattleState(val me:StatePlayer = StatePlayer(), val enemy: StatePlayer = StatePlayer()){
+data class BattleState(val me: StatePlayer = StatePlayer(), val enemy: StatePlayer = StatePlayer(), val phase: Phase) {
 
-    fun nextBattleState(): BattleState {
-        me.phase = me.phase.next()
-        enemy.phase = enemy.phase.next()
-        return this
-    }
-    fun swap(): BattleState = BattleState(enemy, me)
+    fun nextBattleState(): BattleState = BattleState(me, enemy, phase.next())
+
+    fun swap(): BattleState = BattleState(enemy, me, phase)
     fun nextTurn(): BattleState {
-        return when (me.phase) {
+        return when (phase) {
             START -> nextBattleState()
-            ATTACK -> nextBattleState().swap()
             BLOCK -> nextBattleState().swap()
             END_ATTACK -> nextBattleState()
             END -> {
@@ -50,7 +46,7 @@ data class BattleState(val me:StatePlayer = StatePlayer(), val enemy: StatePlaye
         enemy.updateCard(card)
     }
 
-    fun clone(): BattleState = BattleState(me.copy(), enemy.copy())
+    fun clone(): BattleState = BattleState(me.copy(), enemy.copy(), phase)
 }
 
 fun BattleState.endTurn() {
