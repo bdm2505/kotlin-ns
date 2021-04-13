@@ -42,8 +42,7 @@ abstract class AbstractCard : Copied {
         }
     }
 
-    abstract fun writeData(): String
-    abstract fun readData(s: String)
+
 }
 
 @Serializable
@@ -152,23 +151,4 @@ open class Card(override var id: Int = NextId()) : AbstractCard(), Cloneable {
         return true
     }
 
-    var getters: MutableMap<String, () -> String> = mutableMapOf()
-    var setters: MutableMap<String, (String) -> Unit> = mutableMapOf()
-
-    override fun writeData(): String {
-        val sb = StringBuilder()
-        for ((name, data) in getters) {
-            sb.append(' ').append(name).append('=').append(data())
-        }
-        return sb.toString()
-    }
-
-    override fun readData(s: String) {
-        s.split(' ').forEach {
-            val sp = it.split('=')
-            if (sp.size == 2) {
-                setters[sp[0]]?.invoke(sp[1]) ?: System.err.println("$name no contain field ${sp[0]} = ${sp[1]}")
-            }
-        }
-    }
 }
