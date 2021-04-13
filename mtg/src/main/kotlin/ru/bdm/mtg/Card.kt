@@ -10,7 +10,7 @@ object NextId : () -> Int {
 }
 @Serializable
 abstract class AbstractCard : Copied {
-    abstract val id: Int
+    abstract var id: Int
     abstract fun startTurn(state: BattleState)
     abstract fun endAction(state: BattleState)
     abstract fun endTurn(state: BattleState)
@@ -31,7 +31,7 @@ abstract class AbstractCard : Copied {
     abstract fun removeAllPassiveBuffs()
 
     abstract fun addActiveBuff(buff : ActiveBuff)
-    
+
     abstract fun removeAllActiveBuffs()
 
 
@@ -41,20 +41,23 @@ abstract class AbstractCard : Copied {
             CardExecutor.register(this::class, executor())
         }
     }
+
+    abstract fun writeData(): String
+    abstract fun readData(s: String)
 }
 
 @Serializable
-open class Card(override val id: Int = NextId()) : AbstractCard(), Cloneable {
+open class Card(override var id: Int = NextId()) : AbstractCard(), Cloneable {
 
     override var cost: Kit<Mana> = emptyKit()
     final override var tags: MutableSet<Tag> = mutableSetOf()
     final override var status: MutableSet<Status> = mutableSetOf(Status.EMPTY)
 
     override fun executor(): Executor = Executor()
-    
-    var passiveBuffs : MutableList<PassiveBuff> = mutableListOf()
-    
-    var activeBuffs : MutableList<ActiveBuff> = mutableListOf()
+
+    var passiveBuffs: MutableList<PassiveBuff> = mutableListOf()
+
+    var activeBuffs: MutableList<ActiveBuff> = mutableListOf()
     
     
     override fun addPassiveBuff(buff : PassiveBuff){
@@ -149,4 +152,23 @@ open class Card(override val id: Int = NextId()) : AbstractCard(), Cloneable {
         return true
     }
 
+    var getters: MutableMap<String, () -> String> = mutableMapOf()
+    var setters: MutableMap<String, (String) -> Unit> = mutableMapOf()
+
+    override fun writeData(): String {
+        val sb = StringBuilder()
+        for ((name, data) in getters) {
+            sb.append(' ').append(name).append('=').append(data())
+        }
+        return sb.toString()
+    }
+
+    override fun readData(s: String) {
+        s.split(' ').forEach {
+            val sp = it.split('=')
+            if (sp.size == 2) {
+                setters[sp[0]]?.invoke(sp[1]) ?: System.err.println("$name no contain field ${sp[0]} = ${sp[1]}")
+            }
+        }
+    }
 }
