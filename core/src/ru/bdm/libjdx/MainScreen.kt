@@ -12,10 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
-import ru.bdm.mtg.BattleState
-import ru.bdm.mtg.Card
-import ru.bdm.mtg.Difference
-import ru.bdm.mtg.StatePlayer
+import ru.bdm.mtg.*
 import ru.bdm.mtg.cards.creatures.Creature
 
 class MainScreen : BaseScreen() {
@@ -25,7 +22,7 @@ class MainScreen : BaseScreen() {
     val H: Float
         get() = Gdx.graphics.height.toFloat()
 
-    var battleState: BattleState = BattleState()
+    var battleState: BattleState = BattleState(Phase.START)
     var stt = "ass"
     lateinit var listener: SocketListener
     lateinit var states: List<BattleState>
@@ -93,13 +90,13 @@ class MainScreen : BaseScreen() {
                 addMyActor(state.enemy, id, h)
             }
         })
-        stage.addActor(addPlayerInfo(state.me, 0f))
-        stage.addActor(addPlayerInfo(state.enemy, H / 2))
+        stage.addActor(addPlayerInfo(state.me, 0f, state.phase))
+        stage.addActor(addPlayerInfo(state.enemy, H / 2, state.phase))
         stage.addActor(TextButton("NEXT", buttonStyle).apply {
-            setBounds(W - 100, 0f,100f,30f)
-            addListener(object : ClickListener(){
+            setBounds(W - 100, 0f, 100f, 30f)
+            addListener(object : ClickListener() {
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                    if(isUpdated) {
+                    if (isUpdated) {
                         listener.put(states.size - 1)
                         update(states.last(), listOf())
                         isUpdated = false
@@ -110,10 +107,10 @@ class MainScreen : BaseScreen() {
 
     }
 
-    private fun addPlayerInfo(player: StatePlayer, y: Float): VerticalGroup {
+    private fun addPlayerInfo(player: StatePlayer, y: Float, phase: Phase): VerticalGroup {
         return VerticalGroup().apply {
             setBounds(W - 100, y, 100f, H / 2)
-            addActor(Label("${player.phase}", labelStyle).apply { color = Color.GREEN })
+            addActor(Label("${phase}", labelStyle).apply { color = Color.GREEN })
             addActor(Label("${player.hp}hp", labelStyle).apply { color = Color.RED })
             player.graveyard.map { player(it) }.forEach {
                 addActor(CardActor(it as Card, 100f, 30f))

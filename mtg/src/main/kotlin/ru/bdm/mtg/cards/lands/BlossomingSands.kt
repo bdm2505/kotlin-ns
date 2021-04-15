@@ -1,6 +1,7 @@
 package ru.bdm.mtg.cards.lands
 
+import kotlinx.serialization.Serializable
 import ru.bdm.mtg.Mana
 
-class BlossomingSands : TwoColorAndAddLifeLand(Mana.GREEN, Mana.WHITE) {
-}
+@Serializable
+class BlossomingSands : TwoColorAndAddLifeLand(Mana.GREEN, Mana.WHITE)

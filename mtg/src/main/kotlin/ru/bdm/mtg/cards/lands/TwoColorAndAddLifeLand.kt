@@ -1,5 +1,6 @@
 package ru.bdm.mtg.cards.lands
 
+import kotlinx.serialization.Serializable
 import ru.bdm.mtg.Executor
 import ru.bdm.mtg.Mana
 
@@ -14,7 +15,11 @@ class TwoColorAndAddLifeLandExecutor : TwoColorLandExecutor(), TwoColorAndAddLif
 
 }
 
-open class TwoColorAndAddLifeLand(colorOne: Mana, colortwo: Mana) : TwoColorLand(colorOne, colortwo) {
+@Serializable
+open class TwoColorAndAddLifeLand : TwoColorLand {
+    constructor() : super()
+    constructor(colorOne: Mana, colortwo: Mana) : super(colorOne, colortwo)
+
     override fun executor(): Executor {
         return TwoColorAndAddLifeLandExecutor()
     }

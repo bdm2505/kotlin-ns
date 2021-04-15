@@ -1,6 +1,6 @@
 package ru.bdm.mtg
 
-import ru.bdm.mtg.cards.creatures.Creature
+import ru.bdm.mtg.cards.Deck
 
 
 class Battle(val player: Player = ZeroPlayer("zero1"), val enemyPlayer: Player = ZeroPlayer("zero2")) {
@@ -45,8 +45,8 @@ class Battle(val player: Player = ZeroPlayer("zero1"), val enemyPlayer: Player =
 
 fun main() {
     val battle = Battle(SocketPlayer("first", 24009), ZeroPlayer("second")).apply {
-        me.addAll(List(4) { Creature(3, 4) })
-        enemy.addAll(List(4) { Creature(4, 2) })
+        me.addAll(Deck.simple.shuffled(), Place.DECK)
+        enemy.addAll(Deck.simple.shuffled(), Place.DECK)
     }
     battle.start()
     println("started..")

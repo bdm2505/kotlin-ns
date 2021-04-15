@@ -11,12 +11,12 @@ interface GiantKillerInterface : CreatureInterface {
     fun getRotateTargets(): Set<Int> = (me.battlefield - creature.id + enemy.battlefield)
 
     fun canRotateTarget() =
-        isActivePhase() && inBattlefield() && enoughMana(GiantKillerCosts.rotate) && !getRotateTargets().isEmpty()
+        isActivePhase() && inBattlefield() && enoughMana(GiantKiller.rotate) && !getRotateTargets().isEmpty()
 
     fun rotateTargetActions(): List<() -> Unit> = getRotateTargets().map {
         {
             rotate()
-            spendMana(GiantKillerCosts.rotate)
+            spendMana(GiantKiller.rotate)
             state.find<Creature>(it)?.apply { rotated = !rotated } ?: System.err.println("not find creature $it")
         }
     }
@@ -25,7 +25,7 @@ interface GiantKillerInterface : CreatureInterface {
         (me.battlefield + enemy.battlefield).filter { state.find<Creature>(it)?.run { force >= 4 } ?: false }
 
     fun canDestroyTarget() =
-        isActivePhase() && inHand() && enoughMana(GiantKillerCosts.chop) && !getDestroyTargets().isEmpty()
+        isActivePhase() && inHand() && enoughMana(GiantKiller.chop) && !getDestroyTargets().isEmpty()
 
     fun destroyTargetActions() = getDestroyTargets().map {
         {
@@ -34,7 +34,7 @@ interface GiantKillerInterface : CreatureInterface {
             else if (me.battlefield.contains(it))
                 move(me.battlefield, me.graveyard, it)
             move(me.hand, me.exile)
-            spendMana(GiantKillerCosts.chop)
+            spendMana(GiantKiller.chop)
         }
     }
 
@@ -70,9 +70,9 @@ class GiantKiller() : Creature(1, 2) {
     }
 
     override fun executor(): Executor = GiantKillerExecutor()
-}
 
-object GiantKillerCosts {
-    val rotate = "CW".toMana()
-    val chop = "CCW".toMana()
+    companion object GiantKiller {
+        val rotate = "CW".toMana()
+        val chop = "CCW".toMana()
+    }
 }
