@@ -1,5 +1,8 @@
 package ru.bdm.mtg
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 enum class Mana(val char: Char) : Copied {
     NEUTRAL('C'),
     RED('R'),

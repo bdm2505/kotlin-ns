@@ -2,16 +2,12 @@ package ru.bdm.mtg
 
 import kotlin.reflect.KClass
 
-object CardExecutor {
+object CardsExecutor {
 
     val executors: MutableMap<KClass<*>, Executor> = mutableMapOf()
 
     init {
         executors[Card::class] = Executor()
-
-        val card = Card()
-
-        executors[card::class]
     }
 
     fun isRegistered(kclass: KClass<*>) = executors.containsKey(kclass)
@@ -20,62 +16,34 @@ object CardExecutor {
         executors[kclass] = executor
     }
 
-    fun resultStates(battleState: BattleState, cards: List<AbstractCard>): List<BattleState> {
-        return cards.flatMap {
-            executor(it).resultStates(battleState, it)
+    fun registerAll(cards: List<Card>) {
+        for (card in cards) {
+            val executorName = card::class.qualifiedName + "Executor"
+            print("register $executorName ")
+            try {
+                val executor = Class.forName(executorName).constructors[0].newInstance() as Executor
+                executors[card::class] = executor
+                println(" ok!")
+            } catch (e : Exception){
+                println(" fail!")
+                System.err.println("fair register class $executorName")
+            }
         }
     }
 
-    fun executeAll(battleState: BattleState, cards: List<AbstractCard>) {
-        cards.forEach { executor(it).executeAll(battleState, it) }
-    }
-
-    private fun executor(card: AbstractCard): Executor = executors[card::class]!!
 }
 
 
-open class Executor : CardInterface {
-    override lateinit var abstractCard: AbstractCard
-    override lateinit var state: BattleState
+open class Executor  {
 
-    val actions: MutableMap<() -> Boolean, () -> List<() -> Unit>> = mutableMapOf()
+    open fun actions(): List<Pair<(Card, BattleState) -> Boolean, Action>> = listOf()
 
-    fun one(cond: () -> Boolean, react: () -> Unit) {
-        actions[cond] = { listOf(react) }
-    }
+    open fun execute(action: Action, card: Card, state: BattleState) {}
 
-    fun any(cond: () -> Boolean, reacts: () -> List<() -> Unit>) {
-        actions[cond] = reacts
-    }
+    open fun activeActions(card: Card, state: BattleState): List<Action> = actions().filter { it.first(card, state) }.map { it.second }
 
-    private fun activeReactions(): List<() -> Unit> {
-        val a = actions.flatMap { if (it.key()) it.value() else listOf() }
-        println("count reactions = ${a.size} $abstractCard")
-        return a
-    }
-
-    fun resultStates(battleStateNew: BattleState, cardNew: AbstractCard): List<BattleState> {
-        state = battleStateNew.clone()
-        abstractCard = cardNew.copy()
-        state.updateCard(card)
-        return activeReactions().map {
-            it()
-            state.endAction()
-            val res = state
-            state = battleStateNew.clone()
-            abstractCard = cardNew.copy()
-            state.updateCard(abstractCard)
-            res
-        }
-    }
-
-
-    fun executeAll(battleStateNew: BattleState, card: AbstractCard) {
-        state = battleStateNew
-        abstractCard = card
-        state.updateCard(card)
-        for (funs in activeReactions())
-            funs()
-    }
 }
+
+
+
 

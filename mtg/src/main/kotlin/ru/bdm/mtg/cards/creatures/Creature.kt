@@ -5,58 +5,79 @@ import kotlinx.serialization.Serializable
 import ru.bdm.mtg.*
 
 interface CreatureInterface : RotateCardInterface {
-    val creature: Creature
-        get() = card as Creature
+
+
+
+
+
+}
+
+open class CreatureExecutor : RotateCardExecutor() {
+
+    init {
+        any(this::canAttack) {
+            attacked()
+        }
+        any(this::canPlay) {
+            play()
+        }
+        one(this::canEndAttack) {
+            endAttacked()
+        }
+
+        any(this::canBlockAttack) {
+            blockingReactions()
+        }
+    }
+
+    fun creature(): Creature = card as Creature
 
 
     fun canAttack(): Boolean =
-        isStartPhase() && inBattlefield() && !creature.rotated && !creature.attack && !creature.isWentOnBattlefield
+        isStartPhase() && inBattlefield() && !creature().rotated && !creature().attack && !creature().isWentOnBattlefield
 
-    fun canEndAttack(): Boolean = isEndAttackPhase() && inBattlefield() && creature.attack
+    fun canEndAttack(): Boolean = isEndAttackPhase() && inBattlefield() && creature().attack
 
 
     fun canBlockAttack(): Boolean =
-        isBlockPhase() && inBattlefield() && !creature.rotated && !creature.isBlocked && thereAreBlockableCreatures()
+        isBlockPhase() && inBattlefield() && !creature().rotated && !creature().isBlocked && thereAreBlockableCreatures()
 
     fun thereAreBlockableCreatures(): Boolean {
-        for (index in enemy.battlefield)
-            if (canBlock(enemy(index)))
+        for (id in enemy().battlefield)
+            if (canBlock(state(id)))
                 return true
         return false
     }
 
-    fun canBlock(card: AbstractCard): Boolean = card is Creature && card.attack && checkStatus(card)
+    fun canBlock(card: Card): Boolean = card is Creature && card.attack && checkStatus(card)
 
     fun checkStatus(enemy: Creature): Boolean {
-        for (st in creature.status)
-            if (st.canBlock(enemy.status))
-                return true
-        return false
+        return !enemy.isFlying() || creature().isFlying()
     }
 
-    fun blockingReactions(): List<() -> Unit> {
-        val list = mutableListOf<() -> Unit>()
+//    fun blockingReactions(): List<() -> Unit> {
+//        val list = mutableListOf<() -> Unit>()
+//
+//        for (index in enemy.battlefield) {
+//            val cardEnemy = enemy(index)
+//            if (canBlock(cardEnemy)) {
+//                list.add {
+//                    creature.isBlocked = true
+//                    blockCreature(cardEnemy.id)
+//                }
+//            }
+//        }
+//
+//        return list
+//    }
 
-        for (index in enemy.battlefield) {
-            val cardEnemy = enemy(index)
-            if (canBlock(cardEnemy)) {
-                list.add {
-                    creature.isBlocked = true
-                    blockCreature(cardEnemy.id)
-                }
-            }
-        }
-
-        return list
-    }
-
-    fun attacked(): List<() -> Unit> = listOf {
-        creature.attack = true
-        rotate()
-    }
+//    fun attacked(): List<() -> Unit> = listOf {
+//        creature.attack = true
+//        rotate()
+//    }
 
     fun blockCreature(enemyId: Int) {
-        val enemyCreature = enemy<Creature>(enemyId)
+        val enemyCreature = state(enemyId) as Creature
         val stateSwap = state.swap()
         enemyCreature.toDamage(stateSwap, creature)
         creature.toDamage(state, enemyCreature)
@@ -82,24 +103,12 @@ interface CreatureInterface : RotateCardInterface {
         creature.toDamageInFace(state)
     }
 
-}
+    override fun endTurn(state: BattleState) {
 
-open class CreatureExecutor : Executor(), CreatureInterface {
-
-    init {
-        any(this::canAttack) {
-            attacked()
-        }
-        any(this::canPlay) {
-            play()
-        }
-        one(this::canEndAttack) {
-            endAttacked()
-        }
-
-        any(this::canBlockAttack) {
-            blockingReactions()
-        }
+        hp = maxHp
+        attack = false
+        isBlocked = false
+        isWentOnBattlefield = false
     }
 }
 
@@ -107,19 +116,18 @@ open class CreatureExecutor : Executor(), CreatureInterface {
 @SerialName("creature")
 open class Creature() : RotateCard() {
     var force: Int = 0
-    open var hp: Int = 0
+    var hp: Int = 0
     var maxHp: Int = hp
     var attack: Boolean = false
     var isBlocked: Boolean = false
     var isWentOnBattlefield = false
 
-    constructor(f: Int, hp: Int) : this() {
-        this.force = f
+    constructor(damage: Int, hp: Int) : this() {
+        this.force = damage
         this.hp = hp
         this.maxHp = hp
     }
 
-    open fun removedFromBattlefield(state: BattleState) {}
 
     init {
         tag(Tag.CREATURE)
@@ -148,13 +156,7 @@ open class Creature() : RotateCard() {
         return CreatureExecutor()
     }
 
-    override fun endTurn(state: BattleState) {
-        super.endTurn(state)
-        hp = maxHp
-        attack = false
-        isBlocked = false
-        isWentOnBattlefield = false
-    }
+
 
     override fun toString(): String {
         return super.toString() + (if (attack) "A" else "") + (if (isBlocked) "B" else "") + "(${force}_$hp/$maxHp)"

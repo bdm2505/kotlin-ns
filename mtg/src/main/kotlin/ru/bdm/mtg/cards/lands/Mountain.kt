@@ -5,3 +5,5 @@ import ru.bdm.mtg.Mana
 
 @Serializable
 class Mountain : Land(Mana.RED)
+
+class MountainExecutor : LandExecutor()

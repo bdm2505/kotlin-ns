@@ -5,3 +5,5 @@ import ru.bdm.mtg.Mana
 
 @Serializable
 class BlossomingSands : TwoColorAndAddLifeLand(Mana.GREEN, Mana.WHITE)
+
+class BlossomingSandsExecutor : TwoColorAndAddLifeLandExecutor()

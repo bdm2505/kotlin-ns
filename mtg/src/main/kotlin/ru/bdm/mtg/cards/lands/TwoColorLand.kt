@@ -1,40 +1,35 @@
 package ru.bdm.mtg.cards.lands
 
 import kotlinx.serialization.Serializable
-import ru.bdm.mtg.Executor
-import ru.bdm.mtg.Mana
+import ru.bdm.mtg.*
 
 
-interface TwoColorLandInterface : LandInterface {
-    val cland: TwoColorLand
-        get() = abstractCard as TwoColorLand
+open class TwoColorLandExecutor : LandExecutor() {
 
-    fun playLandAndRotate() {
-        move(me.hand, me.lands)
-        me.isLandPlayable = true
+    open fun playLandAndRotate() {
+        move(me().hand, me().lands)
+        me().isLandPlayable = true
         rotate()
     }
 
-    fun addAllMana() = listOf({
-        addMana(cland.color)
-        rotate()
-    }, {
-        addMana(cland.colorTwo)
-        rotate()
-    })
-
-}
-
-open class TwoColorLandExecutor : Executor(), TwoColorLandInterface {
-
-    init {
-        one(this::canPlayLand) {
-            playLandAndRotate()
-        }
-        any(this::canRotateLand) {
-            addAllMana()
-        }
+    override fun actions(): List<Pair<() -> Boolean, Action>> {
+        val land = card as TwoColorLand
+        return listOf(
+            ::canPlayLand to PlayAction,
+            ::canRotateLand to ChoiceColorAction(land.color),
+            ::canRotateLand to ChoiceColorAction(land.colorTwo),
+        )
     }
+
+    override fun execute(action: Action) = when (action) {
+        is PlayAction -> playLandAndRotate()
+        is ChoiceColorAction -> {
+            rotate()
+            addMana(action.color)
+        }
+        else -> throw Exception("no correct action $action for card $card")
+    }
+
 }
 
 @Serializable
@@ -44,10 +39,6 @@ open class TwoColorLand : Land {
     constructor() : super()
     constructor(color: Mana, colorTwo: Mana) : super(color) {
         this.colorTwo = colorTwo
-    }
-
-    override fun executor(): Executor {
-        return TwoColorLandExecutor()
     }
 
     override fun eq(card: Any?): Boolean {

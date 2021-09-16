@@ -8,76 +8,15 @@ object NextId : () -> Int {
         return currId++
     }
 }
-@Serializable
-abstract class AbstractCard : Copied {
-    abstract var id: Int
-    abstract fun startTurn(state: BattleState)
-    abstract fun endAction(state: BattleState)
-    abstract fun endTurn(state: BattleState)
-    abstract override fun copy(): AbstractCard
 
-    abstract infix fun eq(card: Any?): Boolean
-
-    infix fun notEq(card: Any?): Boolean = !eq(card)
-
-    abstract var cost: Kit<Mana>
-    abstract var tags: MutableSet<Tag>
-    abstract var status: MutableSet<Status>
-
-    abstract fun executor(): Executor
-    
-    abstract fun addPassiveBuff(buff : PassiveBuff)
-    
-    abstract fun removeAllPassiveBuffs()
-
-    abstract fun addActiveBuff(buff : ActiveBuff)
-
-    abstract fun removeAllActiveBuffs()
-
-
-    init {
-        if (!CardExecutor.isRegistered(this::class)) {
-            println("register executor for ${this::class.simpleName} -> ${executor()::class.simpleName}")
-            CardExecutor.register(this::class, executor())
-        }
-    }
-
-
-}
 
 @Serializable
-open class Card(override var id: Int = NextId()) : AbstractCard(), Cloneable {
+open class Card(var id: Int = NextId()) : Copied, Cloneable {
 
-    override var cost: Kit<Mana> = emptyKit()
-    final override var tags: MutableSet<Tag> = mutableSetOf()
-    final override var status: MutableSet<Status> = mutableSetOf(Status.EMPTY)
-
-    override fun executor(): Executor = Executor()
-
-    var passiveBuffs: MutableList<PassiveBuff> = mutableListOf()
-
-    var activeBuffs: MutableList<ActiveBuff> = mutableListOf()
-    
-    
-    override fun addPassiveBuff(buff : PassiveBuff){
-      passiveBuffs.add(buff)
-      buff.activate(this)
-    }
-    
-    override fun removeAllPassiveBuffs(){
-      passiveBuffs.clear()
-    }
-    
-    override fun addActiveBuff(buff : ActiveBuff){
-      activeBuffs.add(buff)
-      buff.activate(this)
-    }
-    
-    override fun removeAllActiveBuffs() {
-        activeBuffs.clear()
-    }
-    
-    
+    var cost: Kit<Mana> = emptyKit()
+    var tags: MutableSet<Tag> = mutableSetOf()
+    var status: MutableSet<Status> = mutableSetOf(Status.EMPTY)
+    var buffs: MutableList<Buff> = mutableListOf()
 
     fun tag(vararg tag: Tag) {
         tags.addAll(tag)
@@ -96,20 +35,6 @@ open class Card(override var id: Int = NextId()) : AbstractCard(), Cloneable {
 
     override fun toString(): String {
         return javaClass.simpleName + "-$id"
-    }
-
-    override fun startTurn(state: BattleState) {
-
-    }
-
-    override fun endAction(state: BattleState) {
-      for(buff in activeBuffs){
-        buff.endAction(state, this)
-      }
-    }
-
-    override fun endTurn(state: BattleState) {
-
     }
 
 
@@ -139,7 +64,7 @@ open class Card(override var id: Int = NextId()) : AbstractCard(), Cloneable {
     }
 
 
-    override infix fun eq(card: Any?): Boolean {
+    open infix fun eq(card: Any?): Boolean {
         if (this === card) return true
         if (card !is Card) return false
 
@@ -151,4 +76,57 @@ open class Card(override var id: Int = NextId()) : AbstractCard(), Cloneable {
         return true
     }
 
+    fun isFlying() = status.contains(Status.FLYING)
+
+
+
+    fun canPlay(state: BattleState) = state.me.inHand(id) && enoughMana(state.me.mana) && (state.isStartPhase() || state.isEndPhase())
+
+    fun enoughMana(playerMana: Kit<Mana>): Boolean {
+        for (mana in cost) {
+            if (
+                mana.key != Mana.NEUTRAL &&
+                (!playerMana.containsKey(mana.key) || playerMana[mana.key]!! < mana.value)
+            )
+                return false
+        }
+        return cost.count() <= playerMana.count()
+    }
+
+    fun addMana(state: BattleState, color: Mana) {
+        state.me.mana.add(color)
+    }
+
+
+
+
+    fun spendMana(player: StatePlayer) {
+        println("spend mana ${player.mana} - $cost ")
+        for (m in cost) {
+            player.mana[m.key]?.let {
+                if (it > m.value)
+                    player.mana[m.key] = it - m.value
+                else
+                    player.mana.remove(m.key)
+            }
+        }
+        cost[Mana.NEUTRAL]?.let {
+            var count = it
+            for (m in player.mana) {
+                if (m.value > count) {
+                    player.mana[m.key] = m.value - count
+                    break
+                }
+                if (m.value == count) {
+                    player.mana.remove(m.key)
+                    break
+                }
+                if (m.value < count) {
+                    count -= m.value
+                    player.mana.remove(m.key)
+                }
+            }
+        }
+        println("end spend mana ${player.mana}")
+    }
 }

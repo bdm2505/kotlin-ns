@@ -7,3 +7,5 @@ import ru.bdm.mtg.Mana
 @Serializable
 @SerialName("BloodfellCaves")
 class BloodfellCaves : TwoColorAndAddLifeLand(Mana.BLACK, Mana.RED)
+
+class BloodfellCavesExecutor : TwoColorAndAddLifeLandExecutor()
